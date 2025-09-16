@@ -3,7 +3,7 @@
 using StackExchange.Redis;
 using System.Collections.Concurrent;
 
-public class ObjectLayer : IDisposable
+public class ObjectLayer
 {
     private readonly IDatabase _redis;
     private readonly ISubscriber _pubSub;
@@ -65,7 +65,6 @@ public class ObjectLayer : IDisposable
         if (obj == null) return false;
 
         var transaction = _redis.CreateTransaction();
-        await transaction.KeyDeleteAsync($"{id}{ObjectPrefix}");
         await transaction.GeoRemoveAsync(GeoIndexKey, id);
 
         if (!await transaction.ExecuteAsync()) return false;
@@ -147,10 +146,5 @@ public class ObjectLayer : IDisposable
         {
             handler(message.ToString());
         });
-    }
-
-    public void Dispose()
-    {
-        _pubSub.UnsubscribeAll();
     }
 }
