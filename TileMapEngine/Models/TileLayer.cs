@@ -1,18 +1,18 @@
 namespace TileMapEngine.Models;
-using System.Collections;
 using System.Drawing;
 using Enums;
 
-public struct TileLayer(int width, int height)
+public class TileLayer
 {
-    private static readonly bool[] CanPlaceObject = [true, false];
-
-    private static bool GetCanPlaceObject(SurfaceType type) => CanPlaceObject[(byte)type];
-
-    private readonly BitArray _data = new BitArray(width * height);
-    public int Width { get; } = width;
-    public int Height { get; } = height;
-
+    private readonly byte[,] _data;
+    public int Width { get; }
+    public int Height { get; }
+    public TileLayer(int width, int height)
+    {
+        Width = width;
+        Height = height;
+        _data = new byte[width, height];
+    }
     public SurfaceType GetTile(int x, int y)
     {
         if (!IsInBounds(x, y))
@@ -20,7 +20,7 @@ public struct TileLayer(int width, int height)
             throw new ArgumentOutOfRangeException($"Invalid tile position: {x}, {y}");
         }
         
-        return _data[GetIndex(x, y)] ? SurfaceType.Mountain : SurfaceType.Plain;
+        return _data[x, y] == (byte)SurfaceType.Mountain ? SurfaceType.Mountain : SurfaceType.Plain;
     }
     
     public void SetTile(int x, int y, SurfaceType type)
@@ -29,7 +29,7 @@ public struct TileLayer(int width, int height)
         {
             throw new ArgumentException($"Coordinates out of bounds: {x}, {y}");
         }
-        _data[GetIndex(x, y)] = type == SurfaceType.Mountain;
+        _data[x, y] = (byte)type;
     }
 
     public void FillRegion(Rectangle area, SurfaceType type)
@@ -39,16 +39,24 @@ public struct TileLayer(int width, int height)
             throw new ArgumentException($"Invalid area: {area}");
         }
 
-        var value = type == SurfaceType.Mountain;
         for (int y = area.Top; y < area.Bottom; y++)
         {
             for (int x = area.Left; x < area.Right; x++)
             {
-                _data[GetIndex(x, y)] = value;
+                _data[x, y] = (byte)type;
             }
         }
     }
 
+    public bool CanPlaceObject(int x, int y)
+    {
+        for (int i = x; i < x + Width; i++)
+        for (int j = y; j < y + Height; j++)
+            if (GetTile(i, j) != SurfaceType.Plain)
+                return false;
+        return true;
+    }
+    
     public bool CanPlaceObjectInArea(Rectangle area)
     {
         if (!IsAreaValid(area))
@@ -60,7 +68,7 @@ public struct TileLayer(int width, int height)
         {
             for (int x = area.Left; x < area.Right; x++)
             {
-                if (!GetCanPlaceObject(GetTile(x, y)))
+                if (!CanPlaceObject(x, y))
                     return false;
             }
         }

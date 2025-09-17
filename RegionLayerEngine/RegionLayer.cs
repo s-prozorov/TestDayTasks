@@ -2,72 +2,49 @@ namespace RegionLayerEngine;
 
 public class RegionLayer
 {
-    private readonly ushort[,] _tileToRegionMap;
-    private readonly Dictionary<ushort, Region> _regions = new();
-    private readonly int _regionSize;
+    private readonly ushort[,] regionMap;
+    private readonly IDictionary<ushort, Region> regions = new Dictionary<ushort, Region>();
     
+    public int Width { get; }
+    public int Height { get; }
+
     public RegionLayer(int width, int height, int regionSize)
     {
-        _tileToRegionMap = new ushort[width, height];
-        _regionSize = regionSize;
+        Width = width;
+        Height = height;
+        regionMap = new ushort[width, height];
+        GenerateRegions(regionSize);
     }
-    
-    public void GenerateRegions(string[] regionNames)
+
+    private void GenerateRegions(int regionSize)
     {
-        // Генерация регионов с равномерным распределением
-        var regionId = 0;
-        for (int x = 0; x < _tileToRegionMap.GetLength(0); x += _regionSize)
+        ushort counter = 0;
+        for (int x = 0; x < Width; x += regionSize)
+        for (int y = 0; y < Height; y += regionSize)
         {
-            for (int y = 0; y < _tileToRegionMap.GetLength(1); y += _regionSize)
-            {
-                var region = new Region((ushort)regionId, regionNames[regionId]);
-                _regions.Add(region.Id, region);
+            var region = new Region(counter, $"Region {counter}");
+            regions[counter] = region;
                 
-                // Заполняем тайлы региона
-                for (int rx = 0; rx < _regionSize; rx++)
-                {
-                    for (int ry = 0; ry < _regionSize; ry++)
-                    {
-                        if (x + rx < _tileToRegionMap.GetLength(0) &&
-                            y + ry < _tileToRegionMap.GetLength(1))
-                        {
-                            _tileToRegionMap[x + rx, y + ry] = region.Id;
-                            region.Tiles.Add((x + rx, y + ry));
-                        }
-                    }
-                }
-                regionId++;
-            }
+            for (int i = x; i < x + regionSize && i < Width; i++)
+            for (int j = y; j < y + regionSize && j < Height; j++)
+                regionMap[i, j] = counter;
+                
+            counter++;
         }
     }
-    
-    public ushort GetRegionId(int x, int y)
-    {
-        return _tileToRegionMap[x, y];
-    }
 
-    public Region GetRegion(ushort id)
-    {
-        return _regions.TryGetValue(id, out var region) ? region : null;
-    }
+    public ushort GetRegionId(int x, int y) => 
+        (x >= 0 && x < Width && y >= 0 && y < Height) ? regionMap[x, y] : (ushort)0;
 
-    public bool IsTileInRegion(int x, int y, ushort regionId)
-    {
-        return _tileToRegionMap[x, y] == regionId;
-    }
+    public Region GetRegionMetadata(ushort id) => regions.TryGetValue(id, out var region) ? region : null;
 
-    public List<Region> GetRegionsInArea(int x1, int y1, int x2, int y2)
+    public IEnumerable<ushort> GetRegionsInArea(int x1, int y1, int x2, int y2)
     {
-        var result = new HashSet<ushort>();
-    
+        var found = new HashSet<ushort>();
         for (int x = x1; x <= x2; x++)
-        {
-            for (int y = y1; y <= y2; y++)
-            {
-                result.Add(_tileToRegionMap[x, y]);
-            }
-        }
-    
-        return result.Select(id => _regions[id]).ToList();
+        for (int y = y1; y <= y2; y++)
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+                found.Add(regionMap[x, y]);
+        return found;
     }
 }
