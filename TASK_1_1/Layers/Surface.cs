@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TASK_1_1.Infrastructure;
 
 namespace TASK_1_1.Layers;
-public class Surface : IMapLayer<TileEnum>
+public class Surface : ISurfaceLayer<TileEnum>
 {
     private TileEnum[,] tiles;
     public int Width { get; private set; }
@@ -19,9 +19,19 @@ public class Surface : IMapLayer<TileEnum>
         tiles = new TileEnum[width, height];
     }
 
-    public TileEnum GetTileType(int x, int y) => tiles[x, y];
+    public TileEnum GetTileType(int x, int y)
+    {
+        if (x < 0 || x >= Width || y < 0 || y >= Height)
+            throw new ArgumentOutOfRangeException($"Координаты ({x},{y}) находятся за пределами карты.");
+        return tiles[x, y];
+    }
 
-    public void SetTileType(int x, int y, TileEnum type) => tiles[x, y] = type;
+    public void SetTileType(int x, int y, TileEnum type)
+    {
+        if (x < 0 || x >= Width || y < 0 || y >= Height)
+            throw new ArgumentOutOfRangeException($"Координаты ({x},{y}) находятся за пределами карты.");
+        tiles[x, y] = type;
+    }
 
     public void ReplaceTiles(TileEnum[,] newTiles)
     {
@@ -94,7 +104,7 @@ public class Surface : IMapLayer<TileEnum>
         Height = newHeight;
     }
 
-    public Surface FromArray(TileEnum[,] source) { 
+    public static Surface FromArray(TileEnum[,] source) { 
         var surface = new Surface(source.GetLength(0), source.GetLength(1)); 
         surface.ReplaceTiles(source); 
         return surface; 

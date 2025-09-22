@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TASK_1_1.Layers;
+﻿using TASK_1_1.Layers;
 
 namespace TASK_1_1.Infrastructure;
 
-public interface IMapLayer<T>
+public interface ISurfaceLayer<T>
 {
     int Width { get; }
     int Height { get; }
@@ -29,7 +24,4 @@ public interface IMapLayer<T>
 
     // Дополнительно: Resize
     void Resize(int newWidth, int newHeight, T defaultType);
-
-    // Методы создания из коллекции тайлов (массива, списка и т.д.)
-    Surface FromArray(TileEnum[,] source);
 }

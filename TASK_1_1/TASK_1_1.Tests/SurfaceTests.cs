@@ -36,8 +36,7 @@ public class SurfaceTests
             { TileEnum.Mountain, TileEnum.Plain }
         };
 
-        var surface = new Surface(100,100);
-        surface.FromArray(array);
+        var surface = Surface.FromArray(array);
 
         Assert.Equal(TileEnum.Plain, surface.GetTileType(0, 0));
         Assert.Equal(TileEnum.Mountain, surface.GetTileType(0, 1));
@@ -92,5 +91,35 @@ public class SurfaceTests
         bool canPlace = surface.CanPlaceObject(1, 1, 2, 2);
 
         Assert.True(canPlace);
+    }
+
+    [Fact]
+    public void GetTileType_OutOfBounds_ShouldThrowException()
+    {
+        var surface = new Surface(5, 5);
+
+        var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.GetTileType(-1, 0));
+        Assert.Contains("Координаты (-1,0) находятся за пределами карты", ex1.Message);
+
+        var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.GetTileType(0, 5));
+        Assert.Contains("Координаты (0,5) находятся за пределами карты", ex2.Message);
+
+        var ex3 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.GetTileType(5, 5));
+        Assert.Contains("Координаты (5,5) находятся за пределами карты", ex3.Message);
+    }
+
+    [Fact]
+    public void SetTileType_OutOfBounds_ShouldThrowException()
+    {
+        var surface = new Surface(5, 5);
+
+        var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.SetTileType(-1, 0, TileEnum.Plain));
+        Assert.Contains("Координаты (-1,0) находятся за пределами карты", ex1.Message);
+
+        var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.SetTileType(0, 5, TileEnum.Plain));
+        Assert.Contains("Координаты (0,5) находятся за пределами карты", ex2.Message);
+
+        var ex3 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.SetTileType(5, 5, TileEnum.Plain));
+        Assert.Contains("Координаты (5,5) находятся за пределами карты", ex3.Message);
     }
 }
