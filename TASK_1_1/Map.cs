@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TASK_1_1.Infrastructure;
+﻿using TASK_1_1.Infrastructure;
 
 namespace TASK_1_1;
 public class Map
 {
-    private readonly Dictionary<string, ISurfaceLayer<TileEnum>> layers = new();
+    private readonly Dictionary<string, ISurfaceLayer<TileEnum>> surfaceLayers = new();
+    private readonly Dictionary<string, IObjectLayer> objectLayers = new();
 
     public int Width { get; private set; }
     public int Height { get; private set; }
@@ -24,15 +20,15 @@ public class Map
         if (layer.Width != Width || layer.Height != Height)
             throw new ArgumentException("Размер поверхности должен совпадать с размером карты.");
 
-        layers[name] = layer;
+        surfaceLayers[name] = layer;
     }
 
     public ISurfaceLayer<TileEnum> GetSurfaceLayer(string name)
     {
-        if (!layers.ContainsKey(name))
+        if (!surfaceLayers.ContainsKey(name))
             throw new KeyNotFoundException($"Поверхность '{name}' не наидена.");
 
-        return layers[name];
+        return surfaceLayers[name];
     }
 
     public bool CanPlaceObject(string layerName, int startX, int startY, int endX, int endY)
@@ -46,9 +42,23 @@ public class Map
         Width = newWidth;
         Height = newHeight;
 
-        foreach (var layer in layers.Values)
+        foreach (var layer in surfaceLayers.Values)
         {
             layer.Resize(newWidth, newHeight, defaultType);
         }
+    }
+
+    public void AddObjectLayer(string name, IObjectLayer layer)
+    {
+        if (layer == null) throw new ArgumentNullException(nameof(layer));
+        objectLayers[name] = layer;
+    }
+
+    public IObjectLayer GetObjectLayer(string name)
+    {
+        if (!objectLayers.ContainsKey(name))
+            throw new KeyNotFoundException($"Слой Объекта '{name}' не наиден.");
+
+        return objectLayers[name];
     }
 }
