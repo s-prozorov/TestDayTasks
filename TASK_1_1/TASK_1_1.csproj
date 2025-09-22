@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="TASK_1_1.Tests\**" />
+    <EmbeddedResource Remove="TASK_1_1.Tests\**" />
+    <None Remove="TASK_1_1.Tests\**" />
+  </ItemGroup>
+
+</Project>
