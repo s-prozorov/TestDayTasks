@@ -17,9 +17,9 @@ public class RedisObjectLayer : IObjectLayer
         this.hashKey = hashKey;
     }
 
-    public event Action<MapObject> ObjectAdded;
-    public event Action<MapObject> ObjectUpdated;
-    public event Action<MapObject> ObjectDeleted;
+    public event Action<MapObject> ObjectAdded = delegate { };
+    public event Action<MapObject> ObjectUpdated = delegate { };
+    public event Action<MapObject> ObjectDeleted = delegate { };
 
     public void AddObject(MapObject obj)
     {

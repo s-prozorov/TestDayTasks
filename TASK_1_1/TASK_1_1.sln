@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TASK_1_1", "TASK_1_1.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TASK_1_1.Tests", "TASK_1_1.Tests\TASK_1_1.Tests.csproj", "{ACCC79AF-7139-4432-03D0-708951359483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Network", "..\Network\Network.csproj", "{DE872918-130B-431F-898D-05AB90D272C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TASK1_1.Network", "..\Network\TASK1_1.Network.csproj", "{DE872918-130B-431F-898D-05AB90D272C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
