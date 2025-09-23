@@ -12,4 +12,8 @@
     <None Remove="TASK_1_1.Tests\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.9.17" />
+  </ItemGroup>
+
 </Project>

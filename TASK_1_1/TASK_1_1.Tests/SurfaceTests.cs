@@ -7,7 +7,7 @@ public class SurfaceTests
     [Fact]
     public void GetTile_ShouldReturnCorrectTile()
     {
-        var surface = new Surface(5, 5);
+        var surface = new SurfaceLayer(5, 5);
         surface.SetTileType(2, 3, TileEnum.Mountain);
 
         var tile = surface.GetTileType(2, 3);
@@ -18,7 +18,7 @@ public class SurfaceTests
     [Fact]
     public void SetTile_ShouldChangeTileValue()
     {
-        var surface = new Surface(5, 5);
+        var surface = new SurfaceLayer(5, 5);
 
         surface.SetTileType(1, 1, TileEnum.Mountain);
         Assert.Equal(TileEnum.Mountain, surface.GetTileType(1, 1));
@@ -36,7 +36,7 @@ public class SurfaceTests
             { TileEnum.Mountain, TileEnum.Plain }
         };
 
-        var surface = Surface.FromArray(array);
+        var surface = SurfaceLayer.FromArray(array);
 
         Assert.Equal(TileEnum.Plain, surface.GetTileType(0, 0));
         Assert.Equal(TileEnum.Mountain, surface.GetTileType(0, 1));
@@ -47,7 +47,7 @@ public class SurfaceTests
     [Fact]
     public void FillArea_ShouldFillCorrectRegion()
     {
-        var surface = new Surface(5, 5);
+        var surface = new SurfaceLayer(5, 5);
         surface.FillArea(1, 1, 3, 3, TileEnum.Mountain);
 
         // Проверяем область
@@ -63,7 +63,7 @@ public class SurfaceTests
     [Fact]
     public void CanPlaceObject_ShouldReturnTrueForPlain()
     {
-        var surface = new Surface(3, 3);
+        var surface = new SurfaceLayer(3, 3);
 
         // Все тайлы Plain
         bool canPlace = surface.CanPlaceObject(0, 0, 2, 2);
@@ -74,7 +74,7 @@ public class SurfaceTests
     [Fact]
     public void CanPlaceObject_ShouldReturnFalseIfAnyMountain()
     {
-        var surface = new Surface(3, 3);
+        var surface = new SurfaceLayer(3, 3);
         surface.SetTileType(1, 1, TileEnum.Mountain);
 
         bool canPlace = surface.CanPlaceObject(0, 0, 2, 2);
@@ -85,7 +85,7 @@ public class SurfaceTests
     [Fact]
     public void CanPlaceObject_ShouldHandlePartialArea()
     {
-        var surface = new Surface(3, 3);
+        var surface = new SurfaceLayer(3, 3);
         surface.SetTileType(0, 0, TileEnum.Mountain);
 
         bool canPlace = surface.CanPlaceObject(1, 1, 2, 2);
@@ -96,7 +96,7 @@ public class SurfaceTests
     [Fact]
     public void GetTileType_OutOfBounds_ShouldThrowException()
     {
-        var surface = new Surface(5, 5);
+        var surface = new SurfaceLayer(5, 5);
 
         var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.GetTileType(-1, 0));
         Assert.Contains("Координаты (-1,0) находятся за пределами карты", ex1.Message);
@@ -111,7 +111,7 @@ public class SurfaceTests
     [Fact]
     public void SetTileType_OutOfBounds_ShouldThrowException()
     {
-        var surface = new Surface(5, 5);
+        var surface = new SurfaceLayer(5, 5);
 
         var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() => surface.SetTileType(-1, 0, TileEnum.Plain));
         Assert.Contains("Координаты (-1,0) находятся за пределами карты", ex1.Message);

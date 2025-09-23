@@ -7,7 +7,7 @@ public class MapTests
     public void AddSurfaceLayer_WithWrongSize_ShouldThrow()
     {
         var map = new Map(5, 5);
-        var layer = new Surface(4, 4);
+        var layer = new SurfaceLayer(4, 4);
 
         var ex = Assert.Throws<ArgumentException>(() => map.AddSurfaceLayer("Surface1", layer));
         Assert.Equal("Размер поверхности должен совпадать с размером карты.", ex.Message);
@@ -17,7 +17,7 @@ public class MapTests
     public void AddAndGetSurfaceLayer_ShouldWork()
     {
         var map = new Map(5, 5);
-        var layer = new Surface(5, 5);
+        var layer = new SurfaceLayer(5, 5);
 
         map.AddSurfaceLayer("Surface1", layer);
         var retrieved = map.GetSurfaceLayer("Surface1");
@@ -38,7 +38,7 @@ public class MapTests
     public void CanPlaceObject_ShouldDelegateToLayer()
     {
         var map = new Map(5, 5);
-        var layer = new Surface(5, 5);
+        var layer = new SurfaceLayer(5, 5);
         map.AddSurfaceLayer("Surface1", layer);
 
         layer.SetTileType(2, 2, TileEnum.Mountain);
@@ -54,7 +54,7 @@ public class MapTests
     public void Resize_ShouldResizeMapAndLayer()
     {
         var map = new Map(2, 2);
-        var layer = new Surface(2, 2);
+        var layer = new SurfaceLayer(2, 2);
         layer.SetTileType(0, 0, TileEnum.Mountain);
         map.AddSurfaceLayer("Surface1", layer);
 

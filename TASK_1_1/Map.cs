@@ -1,64 +1,47 @@
-﻿using TASK_1_1.Infrastructure;
+﻿using TASK_1_1.Entities;
+using TASK_1_1.Infrastructure;
+using TASK_1_1.Layers;
 
 namespace TASK_1_1;
 public class Map
 {
-    private readonly Dictionary<string, ISurfaceLayer<TileEnum>> surfaceLayers = new();
-    private readonly Dictionary<string, IObjectLayer> objectLayers = new();
-
     public int Width { get; private set; }
     public int Height { get; private set; }
 
-    public Map(int width, int height)
+    public SurfaceLayer Surface { get; private set; }
+    public IObjectLayer Objects { get; private set; }
+    public IRegionLayer Regions { get; private set; }
+
+    public Map(int width, int height, SurfaceLayer surface, IObjectLayer objects, IRegionLayer regions)
     {
         Width = width;
         Height = height;
-    }
-
-    public void AddSurfaceLayer(string name, ISurfaceLayer<TileEnum> layer)
-    {
-        if (layer.Width != Width || layer.Height != Height)
-            throw new ArgumentException("Размер поверхности должен совпадать с размером карты.");
-
-        surfaceLayers[name] = layer;
-    }
-
-    public ISurfaceLayer<TileEnum> GetSurfaceLayer(string name)
-    {
-        if (!surfaceLayers.ContainsKey(name))
-            throw new KeyNotFoundException($"Поверхность '{name}' не наидена.");
-
-        return surfaceLayers[name];
-    }
-
-    public bool CanPlaceObject(string layerName, int startX, int startY, int endX, int endY)
-    {
-        var layer = GetSurfaceLayer(layerName);
-        return layer.CanPlaceObject(startX, startY, endX, endY);
+        Surface = surface ?? throw new ArgumentNullException(nameof(surface));
+        Objects = objects ?? throw new ArgumentNullException(nameof(objects));
+        Regions = regions ?? throw new ArgumentNullException(nameof(regions));
+        if (surface.Width != width || surface.Height != height)
+            throw new ArgumentException("Surface size must match map size.");
     }
 
     public void Resize(int newWidth, int newHeight, TileEnum defaultType = TileEnum.Plain)
     {
         Width = newWidth;
         Height = newHeight;
-
-        foreach (var layer in surfaceLayers.Values)
-        {
-            layer.Resize(newWidth, newHeight, defaultType);
-        }
+        Surface.Resize(newWidth, newHeight, defaultType);
+        Regions.Resize(newWidth, newHeight);
     }
 
-    public void AddObjectLayer(string name, IObjectLayer layer)
-    {
-        if (layer == null) throw new ArgumentNullException(nameof(layer));
-        objectLayers[name] = layer;
-    }
+    public MapObject? GetObjectById(ulong id) => Objects.GetObjectById(id);
+    public MapObject? GetObjectByCoordinate(int x, int y) => Objects.GetObjectByCoordinate(x, y);
+    public IEnumerable<MapObject> GetObjectsInArea(int startX, int startY, int endX, int endY) =>
+        Objects.GetObjectsInArea(startX, startY, endX, endY);
 
-    public IObjectLayer GetObjectLayer(string name)
-    {
-        if (!objectLayers.ContainsKey(name))
-            throw new KeyNotFoundException($"Слой Объекта '{name}' не наиден.");
+    public bool CanPlaceObjectOnSurface(int startX, int startY, int endX, int endY) =>
+        Surface.CanPlaceObject(startX, startY, endX, endY);
 
-        return objectLayers[name];
-    }
+    public ushort GetRegionId(int x, int y) => Regions.GetRegionId(x, y);
+    public Region GetRegionById(ushort regionId) => Regions.GetRegionById(regionId);
+    public bool IsTileInRegion(int x, int y, ushort regionId) => Regions.IsTileInRegion(x, y, regionId);
+    public IEnumerable<Region> GetRegionsInArea(int startX, int startY, int endX, int endY) =>
+        Regions.GetRegionsInArea(startX, startY, endX, endY);
 }
