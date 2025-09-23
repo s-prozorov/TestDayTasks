@@ -17,10 +17,10 @@ public class Map
         Width = width;
         Height = height;
         Surface = surface ?? throw new ArgumentNullException(nameof(surface));
-        Objects = objects ?? throw new ArgumentNullException(nameof(objects));
-        Regions = regions ?? throw new ArgumentNullException(nameof(regions));
+        Objects = objects;
+        Regions = regions;
         if (surface.Width != width || surface.Height != height)
-            throw new ArgumentException("Surface size must match map size.");
+            throw new ArgumentException();
     }
 
     public void Resize(int newWidth, int newHeight, TileEnum defaultType = TileEnum.Plain)
@@ -35,6 +35,19 @@ public class Map
     public MapObject? GetObjectByCoordinate(int x, int y) => Objects.GetObjectByCoordinate(x, y);
     public IEnumerable<MapObject> GetObjectsInArea(int startX, int startY, int endX, int endY) =>
         Objects.GetObjectsInArea(startX, startY, endX, endY);
+
+    public void AddObject(MapObject obj) => Objects.AddObject(obj);
+    public void RemoveObject(ulong id) => Objects.RemoveObject(id);
+    public void MoveObject(ulong id, int newX, int newY)
+    {
+        var obj = Objects.GetObjectById(id);
+        if (obj != null)
+        {
+            obj.X = newX;
+            obj.Y = newY;
+            Objects.UpdateObject(obj);
+        }
+    }
 
     public bool CanPlaceObjectOnSurface(int startX, int startY, int endX, int endY) =>
         Surface.CanPlaceObject(startX, startY, endX, endY);
