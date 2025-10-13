@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TASK_1_1", "TASK_1_1.csproj", "{E1592FF9-8735-E639-9C30-C61FE5123A88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TASK_1_1.Tests", "TASK_1_1.Tests\TASK_1_1.Tests.csproj", "{ACCC79AF-7139-4432-03D0-708951359483}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TASK1_1.Network", "..\Network\TASK1_1.Network.csproj", "{DE872918-130B-431F-898D-05AB90D272C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1592FF9-8735-E639-9C30-C61FE5123A88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1592FF9-8735-E639-9C30-C61FE5123A88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1592FF9-8735-E639-9C30-C61FE5123A88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1592FF9-8735-E639-9C30-C61FE5123A88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACCC79AF-7139-4432-03D0-708951359483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACCC79AF-7139-4432-03D0-708951359483}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACCC79AF-7139-4432-03D0-708951359483}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACCC79AF-7139-4432-03D0-708951359483}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE872918-130B-431F-898D-05AB90D272C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE872918-130B-431F-898D-05AB90D272C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE872918-130B-431F-898D-05AB90D272C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE872918-130B-431F-898D-05AB90D272C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EAC33D8E-119D-4329-8682-CA9E4C9A00DB}
+	EndGlobalSection
+EndGlobal
