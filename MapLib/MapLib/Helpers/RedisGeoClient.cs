@@ -1,0 +1,128 @@
+﻿using Microsoft.Extensions.Logging;
+
+using StackExchange.Redis;
+
+using MapLib.Interfaces;
+using MapLib.Map.Objects;
+
+namespace MapLib.Helpers
+{
+	public class RedisGeoClient : IRedisClient
+	{
+		public const string GeoKey = "map_objects";
+		
+		private readonly ILogger<RedisGeoClient> _logger = Log.For<RedisGeoClient>();
+
+		private readonly ConnectionMultiplexer _connection;
+		
+		private readonly IDatabase _db;
+		
+		public RedisGeoClient(string connectionString)
+		{
+			var options = ConfigurationOptions.Parse(connectionString);
+			
+			options.AllowAdmin = true;
+			
+			_connection = ConnectionMultiplexer.Connect(options);
+			
+			_db = _connection.GetDatabase();
+		}
+		
+		public bool TryAddGeoPoint(int key, GeoPoint point)
+		{
+			try
+			{
+				return _db.GeoAdd(GeoKey, point.Longitude, point.Latitude, key.ToString());
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message);
+
+				return false;
+			}
+		}
+		
+		public bool TryRemoveGeoPoint(int key)
+		{
+			try
+			{
+				return _db.SortedSetRemove(GeoKey, key.ToString());
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message);
+
+				return false;
+			}
+		}
+		
+		public int? FirstOrDefaultByGeoPoint(GeoPoint point, double radius = 1)
+		{
+			// Ищем объекты в указанном радиусе
+			
+			try
+			{
+				var result = _db.GeoRadius(GeoKey, point.Longitude, point.Latitude, radius, GeoUnit.Meters, 1);
+			
+				if(result == null || result.Length == 0)
+				{
+					return null;
+				}
+			
+				if(int.TryParse(result[0].Member, out int id))
+				{
+					return id;
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message);
+			}
+			
+			return null;
+		}
+		
+		public IList<int>? GetAllObjectsInRadius(GeoPoint point, double radius)
+		{
+			try
+			{
+				var result = _db.GeoRadius(GeoKey, point.Longitude, point.Latitude, radius, GeoUnit.Meters);
+			
+				var list = new List<int>(result.Length);
+			
+				foreach(var record in result)
+				{
+					if(int.TryParse(record.Member, out var id))
+					{
+						list.Add(id);
+					}
+				}
+			
+				return list;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message);
+			}
+			
+			return null;
+		}
+		
+		public bool IsConnected()
+		{
+			if(_connection?.IsConnected != true)
+			{
+				return false;
+			}
+			
+			try
+			{
+				return _connection.GetServer(_connection.GetEndPoints()[0]).IsConnected;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+	}
+}
