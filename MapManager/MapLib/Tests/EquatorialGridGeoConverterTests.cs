@@ -58,7 +58,7 @@ public class EquatorialGridGeoConverterTests
 	public void TilesToMeters_Should_Be_Linear(double tileSize, double tiles)
 	{
 		var converter = new EquatorialGridGeoConverter(tileSize);
-		converter.TilesToMeters(tiles).Should().BeApproximately(tileSize * tiles, EpsDeg);
+		converter.TilesToMeters(tiles).Should().BeApproximately(tileSize * tiles, 1e-9);
 	}
 
 	[Theory]

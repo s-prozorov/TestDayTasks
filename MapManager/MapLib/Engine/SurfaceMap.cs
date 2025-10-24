@@ -8,7 +8,7 @@ namespace MapLib.Engine;
 /// <summary>
 /// Реализация ISurfaceMap, хранящая карту в виде упакованного массива тайлов.
 /// </summary>
-public class SurfaceMap : ISurfaceMap
+public class SurfaceMap : ISurfaceMap, IRegionMap
 {
 	/// <summary>
 	/// Ширина карты в тайлах.
@@ -21,7 +21,7 @@ public class SurfaceMap : ISurfaceMap
 	public int Height { get; }
 
 	private readonly long[] _map;
-	private readonly Dictionary<int, TerritoryInfo> _territories = new();
+	private readonly Dictionary<int, RegionInfo> _regions = new();
 	private readonly ILogger<SurfaceMap> _logger;
 
 	/// <summary>
@@ -45,12 +45,12 @@ public class SurfaceMap : ISurfaceMap
 		_logger = logger ?? NullLogger<SurfaceMap>.Instance;
 
 		var sw = Stopwatch.StartNew();
-		generator.Generate(_map, Width, Height, _territories);
+		generator.Generate(_map, Width, Height, _regions);
 		sw.Stop();
 
 		var (plains, mountains) = CountTypes(_map);
-		_logger.LogInformation("Map generated: {Width}x{Height} in {Ms} ms. Territories: {Territories}. Types: plains={Plains}%, mountains={Mountains}%",
-			Width, Height, sw.ElapsedMilliseconds, _territories.Count, Percent(plains), Percent(mountains));
+		_logger.LogInformation("Map generated: {Width}x{Height} in {Ms} ms. Regions: {Regions}. Types: plains={Plains}%, mountains={Mountains}%",
+			Width, Height, sw.ElapsedMilliseconds, _regions.Count, Percent(plains), Percent(mountains));
 	}
 
 	/// <summary>
@@ -62,19 +62,33 @@ public class SurfaceMap : ISurfaceMap
 	/// <summary>
 	/// Возвращает идентификатор территории, к которой относится тайл.
 	/// </summary>
-	public int GetTerritoryId(int x, int y) => 
-		TilePacker.UnpackTerritoryId(ReadTile(x, y));
+	public int GetRegionId(int x, int y) => 
+		TilePacker.UnpackRegionId(ReadTile(x, y));
 
 	/// <summary>
 	/// Возвращает информацию о территории по ее идентификатору.
 	/// </summary>
-	public TerritoryInfo? GetTerritoryInfo(int id)
+	public RegionInfo? GetRegionInfo(int id)
 	{
-		if(_territories.TryGetValue(id, out var info))
+		if(_regions.TryGetValue(id, out var info))
 			return info;
 
-		_logger.LogWarning("Territory info not found for id={id}", id);
+		_logger.LogWarning("Region info not found for id={id}", id);
 		return null;
+	}
+
+	/// <summary>
+	/// Проверяет, принадлежит ли тайл к региону
+	/// </summary>
+	public bool IsInRegion(int x, int y, int regionId) =>
+		GetRegionId(x, y) == regionId;
+
+	/// <summary>
+	/// Возвращает все регионы, пересекающие указанную область
+	/// </summary>
+	public IReadOnlyList<int> GetRegionsInArea(int x, int y, int width, int height)
+	{
+		throw new NotImplementedException();
 	}
 
 	/// <summary>
@@ -89,8 +103,8 @@ public class SurfaceMap : ISurfaceMap
 	public void SetTileType(int x, int y, TileType type)
 	{
 		var raw = ReadTile(x, y);
-		var territoryId = TilePacker.UnpackTerritoryId(raw);
-		WriteTile(x, y, TilePacker.Pack(territoryId, type));
+		var regionId = TilePacker.UnpackRegionId(raw);
+		WriteTile(x, y, TilePacker.Pack(regionId, type));
 	}
 
 	/// <summary>
@@ -129,8 +143,8 @@ public class SurfaceMap : ISurfaceMap
 			for(var idx = rowStart; idx < rowEnd; idx++)
 			{
 				var raw = _map[idx];
-				var territoryId = TilePacker.UnpackTerritoryId(raw);
-				_map[idx] = TilePacker.Pack(territoryId, type);
+				var regionId = TilePacker.UnpackRegionId(raw);
+				_map[idx] = TilePacker.Pack(regionId, type);
 			}
 		}
 	}

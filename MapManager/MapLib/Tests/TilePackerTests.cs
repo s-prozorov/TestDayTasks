@@ -17,16 +17,16 @@ public class TilePackerTests
 	[InlineData(42, TileType.Plain)]
 	[InlineData(int.MaxValue, TileType.Mountain)]
 	[InlineData(0, TileType.Plain)]
-	public void Pack_And_Unpack_Should_Preserve_Data(int territoryId, TileType type)
+	public void Pack_And_Unpack_Should_Preserve_Data(int regionId, TileType type)
 	{
-		var tile = TilePacker.Pack(territoryId, type);
+		var tile = TilePacker.Pack(regionId, type);
 
-		TilePacker.UnpackTerritoryId(tile).Should().Be(territoryId);
+		TilePacker.UnpackRegionId(tile).Should().Be(regionId);
 		TilePacker.UnpackType(tile).Should().Be(type);
 	}
 
 	[Fact]
-	public void Pack_Should_Encode_TerritoryId_In_Upper_32Bits()
+	public void Pack_Should_Encode_RegionId_In_Upper_32Bits()
 	{
 		var id = 123;
 		var type = TileType.Mountain;
@@ -48,11 +48,11 @@ public class TilePackerTests
 	}
 
 	[Fact]
-	public void UnpackTerritoryId_Should_Extract_UpperBits_Correctly()
+	public void UnpackRegionId_Should_Extract_UpperBits_Correctly()
 	{
 		var tile = 0x0000000200000000L;
 
-		var id = TilePacker.UnpackTerritoryId(tile);
+		var id = TilePacker.UnpackRegionId(tile);
 
 		id.Should().Be(2);
 	}

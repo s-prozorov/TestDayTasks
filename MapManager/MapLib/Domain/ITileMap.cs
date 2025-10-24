@@ -21,16 +21,6 @@ public interface ITileMap
 	TileType GetTileType(int x, int y);
 
 	/// <summary>
-	/// Возвращает идентификатор территории, к которой относится тайл.
-	/// </summary>
-	int GetTerritoryId(int x, int y);
-
-	/// <summary>
-	/// Возвращает сведения о территории по ее идентификатору.
-	/// </summary>
-	TerritoryInfo? GetTerritoryInfo(int id);
-
-	/// <summary>
 	/// Проверяет возможность размещения объекта по указанным координатам.
 	/// </summary>
 	bool CanPlace(int x, int y);

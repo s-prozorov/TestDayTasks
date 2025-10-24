@@ -7,50 +7,50 @@ namespace MapLib.Engine;
 /// </summary>
 public class StubMapGenerator : IMapGenerator
 {
-	private readonly int _territoryCols;
-	private readonly int _territoryRows;
+	private readonly int _regionCols;
+	private readonly int _regionRows;
 	private readonly int _seed;
 
-	public StubMapGenerator(int territoryCols = 10, int territoryRows = 10, int seed = 12345)
+	public StubMapGenerator(int regionCols = 10, int regionRows = 10, int seed = 12345)
 	{
-		_territoryCols = Math.Max(1, territoryCols);
-		_territoryRows = Math.Max(1, territoryRows);
+		_regionCols = Math.Max(1, regionCols);
+		_regionRows = Math.Max(1, regionRows);
 		_seed = seed;
 	}
 
 	/// <summary>
 	/// Генерирует карту и заполняет массив тайлов и словарь территорий.
 	/// </summary>
-	/// <param name="map"></param>
-	/// <param name="width"></param>
-	/// <param name="height"></param>
-	/// <param name="territories"></param>
-	public void Generate(long[] map, int width, int height, Dictionary<int, TerritoryInfo> territories)
+	public void Generate(long[] map, int width, int height, Dictionary<int, RegionInfo> regions)
 	{
 		var rng = new Random(_seed);
 
-		var total = _territoryCols * _territoryRows;
+		var total = _regionCols * _regionRows;
 		for(var id = 1; id <= total; id++)
 		{
-			territories[id] = new TerritoryInfo { Id = id };
+			regions[id] = new RegionInfo
+			{
+			    Id = id,
+				Name = $"Region {id}"
+			};
 		}
 
-		var blockWidth = Math.Max(1, width / _territoryCols);
-		var blockHeight = Math.Max(1, height / _territoryRows);
+		var blockWidth = Math.Max(1, width / _regionCols);
+		var blockHeight = Math.Max(1, height / _regionRows);
 
 		for(var y = 0; y < height; y++)
 		{
-			var territoryRow = Math.Min(y / blockHeight, _territoryRows - 1);
+			var regionRow = Math.Min(y / blockHeight, _regionRows - 1);
 
 			for(var x = 0; x < width; x++)
 			{
-				var territoryCol = Math.Min(x / blockWidth, _territoryCols - 1);
-				var territoryId = territoryRow * _territoryCols + territoryCol + 1;
+				var regionCol = Math.Min(x / blockWidth, _regionCols - 1);
+				var regionId = regionRow * _regionCols + regionCol + 1;
 
 				var type = rng.Next(0, 2) == 0 ? TileType.Plain : TileType.Mountain;
 
 				var idx = y * width + x;
-				map[idx] = TilePacker.Pack(territoryId, type);
+				map[idx] = TilePacker.Pack(regionId, type);
 			}
 		}
 	}

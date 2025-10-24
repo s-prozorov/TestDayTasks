@@ -9,7 +9,7 @@ namespace MapLib.Tests;
 /// <summary>
 /// тесты для SurfaceMap:
 /// проверяют корректность чтения/записи тайлов, загрузки данных, массовых операций над областью,
-/// сохранение идентификаторов территорий, а также валидацию входных данных.
+/// сохранение идентификаторов регионов, а также валидацию входных данных.
 /// </summary>
 public class SurfaceMapTests
 {
@@ -38,13 +38,13 @@ public class SurfaceMapTests
 	}
 
 	[Fact]
-	public void GetTileType_And_GetTerritoryId_Should_Work_For_Corners()
+	public void GetTileType_And_GetRegionId_Should_Work_For_Corners()
 	{
 		var surface = CreateSurface(8, 5);
 		surface.Invoking(_ => _.GetTileType(0, 0)).Should().NotThrow();
 		surface.Invoking(_ => _.GetTileType(7, 4)).Should().NotThrow();
-		surface.Invoking(_ => _.GetTerritoryId(0, 0)).Should().NotThrow();
-		surface.Invoking(_ => _.GetTerritoryId(7, 4)).Should().NotThrow();
+		surface.Invoking(_ => _.GetRegionId(0, 0)).Should().NotThrow();
+		surface.Invoking(_ => _.GetRegionId(7, 4)).Should().NotThrow();
 	}
 
 	[Fact]
@@ -53,25 +53,25 @@ public class SurfaceMapTests
 		var surface = CreateSurface(4, 4);
 		surface.Invoking(_ => _.GetTileType(-1, 0)).Should().Throw<ArgumentOutOfRangeException>();
 		surface.Invoking(_ => _.GetTileType(4, 0)).Should().Throw<ArgumentOutOfRangeException>();
-		surface.Invoking(_ => _.GetTerritoryId(0, -1)).Should().Throw<ArgumentOutOfRangeException>();
+		surface.Invoking(_ => _.GetRegionId(0, -1)).Should().Throw<ArgumentOutOfRangeException>();
 		surface.Invoking(_ => _.SetTileType(0, 4, TileType.Plain)).Should().Throw<ArgumentOutOfRangeException>();
 	}
 
 	[Fact]
-	public void SetTileType_Should_Update_Type_And_Preserve_TerritoryId()
+	public void SetTileType_Should_Update_Type_And_Preserve_RegionId()
 	{
 		var surface = CreateSurface(10, 6);
 		var x = 3;
 		var y = 2;
 
-		var beforeId = surface.GetTerritoryId(x, y);
+		var beforeId = surface.GetRegionId(x, y);
 		var beforeType = surface.GetTileType(x, y);
 
 		var newType = beforeType == TileType.Plain ? TileType.Mountain : TileType.Plain;
 		surface.SetTileType(x, y, newType);
 
 		surface.GetTileType(x, y).Should().Be(newType);
-		surface.GetTerritoryId(x, y).Should().Be(beforeId);
+		surface.GetRegionId(x, y).Should().Be(beforeId);
 	}
 
 	[Fact]
@@ -88,7 +88,7 @@ public class SurfaceMapTests
 
 		surface.LoadFrom(tiles);
 
-		surface.GetTerritoryId(0, 0).Should().Be(1);
+		surface.GetRegionId(0, 0).Should().Be(1);
 		surface.GetTileType(4, 4).Should().Be(TileType.Plain);
 
 		var wrong = new long[area - 1];
@@ -96,7 +96,7 @@ public class SurfaceMapTests
 	}
 
 	[Fact]
-	public void FillArea_Should_Set_Type_For_Rectangle_And_Preserve_TerritoryIds()
+	public void FillArea_Should_Set_Type_For_Rectangle_And_Preserve_RegionIds()
 	{
 		var surface = CreateSurface(12, 8);
 		int x = 2, y = 1, width = 5, height = 3;
@@ -106,7 +106,7 @@ public class SurfaceMapTests
 		{
 			for(var tileX = x; tileX < x + width; tileX++)
 			{
-				idsBefore[tileY * surface.Width + tileX] = surface.GetTerritoryId(tileX, tileY);
+				idsBefore[tileY * surface.Width + tileX] = surface.GetRegionId(tileX, tileY);
 			}
 		}
 
@@ -118,7 +118,7 @@ public class SurfaceMapTests
 			{
 				surface.GetTileType(tileX, tileY).Should().Be(TileType.Mountain);
 				var idx = tileY * surface.Width + tileX;
-				surface.GetTerritoryId(tileX, tileY).Should().Be(idsBefore[idx]);
+				surface.GetRegionId(tileX, tileY).Should().Be(idsBefore[idx]);
 			}
 		}
 	}
@@ -165,9 +165,34 @@ public class SurfaceMapTests
 	}
 
 	[Fact]
-	public void GetTerritoryInfo_Should_Return_Null_For_Unknown_Id()
+	public void GetRegionInfo_Should_Return_Null_For_Unknown_Id()
 	{
 		var surface = CreateSurface(6, 6, 2, 2);
-		surface.GetTerritoryInfo(0).Should().BeNull();
+		surface.GetRegionInfo(0).Should().BeNull();
+	}
+
+	[Fact]
+	public void IsInRegion_Should_Return_True_When_Tile_Belongs_To_Region()
+	{
+		var generator = new StubMapGenerator(2, 2);
+		var map = new SurfaceMap(4, 4, generator);
+		var regionId = map.GetRegionId(1, 1);
+
+		var result = map.IsInRegion(1, 1, regionId);
+
+		result.Should().BeTrue();
+	}
+
+	[Fact]
+	public void IsInRegion_Should_Return_False_When_Tile_Not_In_Region()
+	{
+		var generator = new StubMapGenerator(2, 2);
+		var map = new SurfaceMap(4, 4, generator);
+		var regionId = map.GetRegionId(0, 0);
+		var otherRegion = regionId + 1;
+
+		var result = map.IsInRegion(3, 3, otherRegion);
+
+		result.Should().BeFalse();
 	}
 }

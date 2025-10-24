@@ -8,17 +8,17 @@ namespace MapLib.Engine;
 internal static class TilePacker
 {
 	/// <summary>
-	/// Упаковывает идентификатор территории и тип тайла в одно значение.
+	/// Упаковывает идентификатор региона и тип тайла в одно значение.
 	/// </summary>
-	internal static long Pack(int territoryId, TileType type) => 
-		((long)territoryId << 32) | (uint)type;
+	internal static long Pack(int regionId, TileType type) => 
+		((long)regionId << 32) | (uint)type;
 
 	/// <summary>
-	/// Извлекает идентификатор территории.
+	/// Извлекает идентификатор региона.
 	/// </summary>
 	/// <param name="tile"></param>
 	/// <returns></returns>
-	internal static int UnpackTerritoryId(long tile) =>
+	internal static int UnpackRegionId(long tile) =>
 		(int)(tile >> 32);
 
 	/// <summary>

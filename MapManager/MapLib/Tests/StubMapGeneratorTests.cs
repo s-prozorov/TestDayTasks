@@ -9,18 +9,18 @@ namespace MapLib.Tests;
 /// Тесты для StubMapGenerator:
 /// проверяют корректность генерации карты-заглушки:
 /// заполнение всех тайлов, детерменированность при одинаковом seed,
-/// диапазон идентификаторов территорий и корректность распределения типов тайлов.
+/// диапазон идентификаторов регионов и корректность распределения типов тайлов.
 /// </summary>
 public class StubMapGeneratorTests
 {
-	private static (long[] map, Dictionary<int, TerritoryInfo> territory, int width, int height, int cols, int rows, int total)
+	private static (long[] map, Dictionary<int, RegionInfo> regions, int width, int height, int cols, int rows, int total)
 		Generate(int width = 100, int height = 80, int cols = 10, int rows = 8, int seed = 12345)
 	{
 		var generator = new StubMapGenerator(cols, rows, seed);
 		var map = new long[width * height];
-		var territory = new Dictionary<int, TerritoryInfo>();
-		generator.Generate(map, width, height, territory);
-		return (map, territory, width, height, cols, rows, cols * rows);
+		var regions = new Dictionary<int, RegionInfo>();
+		generator.Generate(map, width, height, regions);
+		return (map, regions, width, height, cols, rows, cols * rows);
 	}
 
 	[Fact]
@@ -31,18 +31,18 @@ public class StubMapGeneratorTests
 	}
 
 	[Fact]
-	public void TerritoryIds_Should_Be_InRange_And_Have_Info()
+	public void RegionIds_Should_Be_InRange_And_Have_Info()
 	{
-		var (map, territory, _, _, _, _, total) = Generate();
+		var (map, region, _, _, _, _, total) = Generate();
 
 		foreach(var tile in map)
 		{
-			var id = TilePacker.UnpackTerritoryId(tile);
+			var id = TilePacker.UnpackRegionId(tile);
 			id.Should().BeInRange(1, total);
-			territory.ContainsKey(id).Should().BeTrue($"territory info must exist for id={id}");
+			region.ContainsKey(id).Should().BeTrue($"region info must exist for id={id}");
 		}
 
-		territory.Count.Should().Be(total);
+		region.Count.Should().Be(total);
 	}
 
 	[Fact]
@@ -66,7 +66,7 @@ public class StubMapGeneratorTests
 	}
 
 	[Fact]
-	public void Territory_Tiling_Should_Match_Block_Grid()
+	public void Region_Tiling_Should_Match_Block_Grid()
 	{
 		var (map, _, width, height, cols, rows, _) = Generate(width: 103, height: 97, cols: 7, rows: 5, seed: 42);
 
@@ -77,14 +77,31 @@ public class StubMapGeneratorTests
 		{
 			for(var x = 0; x < width; x += blockWidth)
 			{
-				var territoryRow = Math.Min(y / blockHeight, rows - 1);
-				var territoryCol = Math.Min(x / blockWidth, cols - 1);
-				var expectedId = territoryRow * cols + territoryCol + 1;
+				var regionRow = Math.Min(y / blockHeight, rows - 1);
+				var regionCol = Math.Min(x / blockWidth, cols - 1);
+				var expectedId = regionRow * cols + regionCol + 1;
 
 				var idx = y * width + x;
-				var id = TilePacker.UnpackTerritoryId(map[idx]);
+				var id = TilePacker.UnpackRegionId(map[idx]);
 				id.Should().Be(expectedId);
 			}
+		}
+	}
+
+	[Fact]
+	public void Generate_Should_Create_Regions_With_Names()
+	{
+		var generator = new StubMapGenerator(3, 2);
+		var map = new long[6 * 6];
+		var regions = new Dictionary<int, RegionInfo>();
+
+		generator.Generate(map, 6, 6, regions);
+
+		regions.Should().NotBeEmpty();
+		foreach(var region in regions.Values)
+		{
+			region.Name.Should().StartWith("Region ");
+			region.Id.Should().BeGreaterThan(0);
 		}
 	}
 }
