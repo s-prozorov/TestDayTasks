@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MapSurface\MapSurface.csproj" />
+    <ProjectReference Include="..\..\src\MapObjects\MapObjects.csproj" />
   </ItemGroup>
 
 </Project>
