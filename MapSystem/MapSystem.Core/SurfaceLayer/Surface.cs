@@ -2,7 +2,7 @@
 
 namespace MapSystem.Core.SurfaceLayer;
 
-public sealed class Surface
+public sealed class Surface : ISurfaceLayer
 {
     private readonly byte[] _tiles;
 
@@ -16,6 +16,17 @@ public sealed class Surface
     public int Width { get; }
 
     public int Height { get; }
+
+    public static Surface Create(int width, int height)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width, nameof(width));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height, nameof(height));
+
+        var tiles = new byte[width * height];
+        Array.Fill(tiles, (byte)TileType.Flat);
+
+        return new Surface(width, height, tiles);
+    }
 
     public static Surface CreateFromCollection(int width, int height, IEnumerable<TileType> tiles)
     {

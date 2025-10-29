@@ -11,7 +11,7 @@ public sealed class RedisObjectLayer : IObjectLayer, IDisposable
     private readonly string _keyPrefix;
     private readonly IConnectionMultiplexer _redis;
 
-    private RedisObjectLayer(IConnectionMultiplexer redis, string keyPrefix)
+    internal RedisObjectLayer(IConnectionMultiplexer redis, string keyPrefix)
     {
         _redis = redis ?? throw new ArgumentNullException(nameof(redis));
         _db = redis.GetDatabase();
