@@ -1,87 +1,82 @@
-﻿namespace Surface;
+﻿using MapSystem.Core.Common;
+
+namespace MapSystem.Core.SurfaceLayer;
 
 public sealed class Surface
 {
     private readonly byte[] _tiles;
-    private readonly int _width;
-    private readonly int _height;
-    
-    public int Width => _width;
-    public int Height => _height;
-    
+
     private Surface(int width, int height, byte[] tiles)
     {
-        _width = width;
-        _height = height;
+        Width = width;
+        Height = height;
         _tiles = tiles;
     }
+
+    public int Width { get; }
+
+    public int Height { get; }
 
     public static Surface CreateFromCollection(int width, int height, IEnumerable<TileType> tiles)
     {
         ArgumentNullException.ThrowIfNull(tiles, nameof(tiles));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width, nameof(width));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height, nameof(height));
-        
-        TileType[] tilesArray = tiles.ToArray();
-        int expectedCount = width * height;
+
+        var tilesArray = tiles.ToArray();
+        var expectedCount = width * height;
         if (tilesArray.Length != expectedCount)
-        {
             throw new ArgumentException(
                 $"Количество тайлов ({tilesArray.Length}) не совпадает с размером карты " +
                 $"{width} Х {height} ({expectedCount})",
                 nameof(tiles));
-        }
-        
-        byte[] tileBytes = new byte[expectedCount];
-        for (int i = 0; i < expectedCount; i++)
-        {
-            tileBytes[i] = (byte)tilesArray[i];
-        }
+
+        var tileBytes = new byte[expectedCount];
+        for (var i = 0; i < expectedCount; i++) tileBytes[i] = (byte)tilesArray[i];
 
         return new Surface(width, height, tileBytes);
     }
-    
+
     public TileType GetTileType(int x, int y)
     {
-        SurfaceHelpers.ValidatePoint(x, y, _width, _height);
-        int index = SurfaceHelpers.GetIndex(x, y, _width);
+        ValidateHelpers.ValidatePoint(x, y, Width, Height);
+        var index = ValidateHelpers.GetIndex(x, y, Width);
         return (TileType)_tiles[index];
     }
-    
+
     public void SetTileType(int x, int y, TileType type)
     {
-        SurfaceHelpers.ValidatePoint(x, y, _width, _height);
-        int index = SurfaceHelpers.GetIndex(x, y, _width);
+        ValidateHelpers.ValidatePoint(x, y, Width, Height);
+        var index = ValidateHelpers.GetIndex(x, y, Width);
         _tiles[index] = (byte)type;
     }
-    
+
     public void FillArea(int x, int y, int width, int height, TileType type)
     {
-        SurfaceHelpers.ValidateAreaBounds(x, y, width, height, _width, _height);
+        ValidateHelpers.ValidateArea(x, y, width, height);
+        ValidateHelpers.ValidateAreaBounds(x, y, width, height, Width, Height);
 
-        byte typeByte = (byte)type;
-        
-        for (int row = y; row < y + height; row++)
+        var typeByte = (byte)type;
+
+        for (var row = y; row < y + height; row++)
         {
-            int startIndex = SurfaceHelpers.GetIndex(x, row, _width);
-            Span<byte> rowSpan = new Span<byte>(_tiles, startIndex, width);
+            var startIndex = ValidateHelpers.GetIndex(x, row, Width);
+            var rowSpan = new Span<byte>(_tiles, startIndex, width);
             rowSpan.Fill(typeByte);
         }
     }
-    
+
     public bool CanPlaceInArea(int x, int y, int width, int height)
     {
-        if (!SurfaceHelpers.IsAreaInBounds(x, y, width, height, _width, _height))
+        if (!ValidateHelpers.IsAreaInBounds(x, y, width, height, Width, Height))
             return false;
-        
-        for (int row = y; row < y + height; row++)
+
+        for (var row = y; row < y + height; row++)
+        for (var col = x; col < x + width; col++)
         {
-            for (int col = x; col < x + width; col++)
-            {
-                TileType tileType = GetTileType(col, row);
-                if (!tileType.CanPlace())
-                    return false;
-            }
+            var tileType = GetTileType(col, row);
+            if (!tileType.CanPlace())
+                return false;
         }
 
         return true;

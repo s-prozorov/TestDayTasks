@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Surface;
-
+﻿namespace MapSystem.Core.SurfaceLayer;
 
 public static class TileTypeExtensions
 {

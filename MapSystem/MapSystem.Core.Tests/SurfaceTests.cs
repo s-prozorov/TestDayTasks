@@ -1,5 +1,4 @@
-using Surface;
-using Xunit;
+using MapSystem.Core.SurfaceLayer;
 
 namespace MapSystem.Core.Tests;
 
@@ -10,7 +9,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[100 * 100];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(100, 100, tiles);
+        var layer = Surface.CreateFromCollection(100, 100, tiles);
 
         Assert.Equal(100, layer.Width);
         Assert.Equal(100, layer.Height);
@@ -21,7 +20,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         Assert.Equal(TileType.Flat, layer.GetTileType(0, 0));
         Assert.Equal(TileType.Flat, layer.GetTileType(9, 9));
@@ -33,7 +32,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Mountain);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         Assert.Equal(TileType.Mountain, layer.GetTileType(0, 0));
         Assert.Equal(TileType.Mountain, layer.GetTileType(5, 5));
@@ -49,7 +48,7 @@ public class SurfaceTests
         var tiles = new TileType[Math.Max(1, width * height)];
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            Surface.Surface.CreateFromCollection(width, height, tiles));
+            Surface.CreateFromCollection(width, height, tiles));
     }
 
     [Fact]
@@ -62,7 +61,7 @@ public class SurfaceTests
             TileType.Flat, TileType.Mountain, TileType.Flat
         };
 
-        var layer = Surface.Surface.CreateFromCollection(3, 3, tiles);
+        var layer = Surface.CreateFromCollection(3, 3, tiles);
 
         Assert.Equal(3, layer.Width);
         Assert.Equal(3, layer.Height);
@@ -75,7 +74,7 @@ public class SurfaceTests
     public void CreateFromCollection_NullCollection_ThrowsException()
     {
         Assert.Throws<ArgumentNullException>(() =>
-            Surface.Surface.CreateFromCollection(10, 10, null!));
+            Surface.CreateFromCollection(10, 10, null!));
     }
 
     [Fact]
@@ -84,7 +83,7 @@ public class SurfaceTests
         var tiles = new[] { TileType.Flat, TileType.Mountain };
 
         Assert.Throws<ArgumentException>(() =>
-            Surface.Surface.CreateFromCollection(10, 10, tiles));
+            Surface.CreateFromCollection(10, 10, tiles));
     }
 
     [Fact]
@@ -92,7 +91,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
         layer.SetTileType(5, 5, TileType.Mountain);
 
         var type = layer.GetTileType(5, 5);
@@ -105,7 +104,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         layer.SetTileType(3, 7, TileType.Mountain);
 
@@ -122,7 +121,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         Assert.Throws<ArgumentOutOfRangeException>(() => layer.GetTileType(x, y));
     }
@@ -136,7 +135,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             layer.SetTileType(x, y, TileType.Mountain));
@@ -147,7 +146,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         layer.FillArea(2, 2, 3, 3, TileType.Mountain);
 
@@ -163,17 +162,13 @@ public class SurfaceTests
     {
         var tiles = new TileType[5 * 5];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(5, 5, tiles);
+        var layer = Surface.CreateFromCollection(5, 5, tiles);
 
         layer.FillArea(0, 0, 5, 5, TileType.Mountain);
 
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                Assert.Equal(TileType.Mountain, layer.GetTileType(x, y));
-            }
-        }
+        for (var y = 0; y < 5; y++)
+        for (var x = 0; x < 5; x++)
+            Assert.Equal(TileType.Mountain, layer.GetTileType(x, y));
     }
 
     [Fact]
@@ -181,7 +176,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         layer.FillArea(5, 5, 1, 1, TileType.Mountain);
 
@@ -199,7 +194,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             layer.FillArea(x, y, width, height, TileType.Mountain));
@@ -210,7 +205,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             layer.FillArea(8, 8, 5, 5, TileType.Mountain));
@@ -221,7 +216,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         var canPlace = layer.CanPlaceInArea(2, 2, 3, 3);
 
@@ -233,7 +228,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Mountain);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         var canPlace = layer.CanPlaceInArea(2, 2, 3, 3);
 
@@ -245,7 +240,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
         layer.SetTileType(5, 5, TileType.Mountain);
 
         var canPlace = layer.CanPlaceInArea(4, 4, 3, 3);
@@ -258,7 +253,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
         layer.SetTileType(0, 0, TileType.Mountain);
 
         var canPlace = layer.CanPlaceInArea(5, 5, 3, 3);
@@ -271,7 +266,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         var canPlace = layer.CanPlaceInArea(8, 8, 5, 5);
 
@@ -283,7 +278,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         var canPlace = layer.CanPlaceInArea(-1, 5, 3, 3);
 
@@ -295,7 +290,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         var canPlace = layer.CanPlaceInArea(5, 5, -1, 3);
 
@@ -307,7 +302,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[10 * 10];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(10, 10, tiles);
+        var layer = Surface.CreateFromCollection(10, 10, tiles);
 
         var canPlace = layer.CanPlaceInArea(5, 5, 0, 3);
 
@@ -319,7 +314,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[1000 * 1000];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(1000, 1000, tiles);
+        var layer = Surface.CreateFromCollection(1000, 1000, tiles);
 
         Assert.Equal(1000, layer.Width);
         Assert.Equal(1000, layer.Height);
@@ -332,7 +327,7 @@ public class SurfaceTests
     {
         var tiles = new TileType[1000 * 1000];
         Array.Fill(tiles, TileType.Flat);
-        var layer = Surface.Surface.CreateFromCollection(1000, 1000, tiles);
+        var layer = Surface.CreateFromCollection(1000, 1000, tiles);
 
         layer.FillArea(0, 0, 1000, 1000, TileType.Mountain);
 

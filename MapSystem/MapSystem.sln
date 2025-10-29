@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F1023FF3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapSystem.Core.Tests", "MapSystem.Core.Tests\MapSystem.Core.Tests.csproj", "{B68681C0-F2C3-4E8F-B7C6-6E8F9A7923E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapSystem.Contracts", "MapSystem.Contracts\MapSystem.Contracts.csproj", "{C79A28E0-86C7-4034-8AF6-19B0ADAAE7F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,9 +24,14 @@ Global
 		{B68681C0-F2C3-4E8F-B7C6-6E8F9A7923E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B68681C0-F2C3-4E8F-B7C6-6E8F9A7923E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B68681C0-F2C3-4E8F-B7C6-6E8F9A7923E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C79A28E0-86C7-4034-8AF6-19B0ADAAE7F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C79A28E0-86C7-4034-8AF6-19B0ADAAE7F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C79A28E0-86C7-4034-8AF6-19B0ADAAE7F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C79A28E0-86C7-4034-8AF6-19B0ADAAE7F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{215DFBB5-C669-460C-892A-77D9222D7EBD} = {E6662A30-AA77-4A1D-927A-C09CB4993709}
 		{B68681C0-F2C3-4E8F-B7C6-6E8F9A7923E5} = {F1023FF3-2BC0-425B-9CD1-130C5471B0D3}
+		{C79A28E0-86C7-4034-8AF6-19B0ADAAE7F7} = {E6662A30-AA77-4A1D-927A-C09CB4993709}
 	EndGlobalSection
 EndGlobal
