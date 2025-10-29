@@ -5,7 +5,7 @@ namespace MapSystem.Contracts;
 [MemoryPackable]
 public partial class ObjectData
 {
-    public string Id { get; set; } = string.Empty;
+    public uint Id { get; set; }
     public int X { get; set; }
     public int Y { get; set; }
     public int Width { get; set; }

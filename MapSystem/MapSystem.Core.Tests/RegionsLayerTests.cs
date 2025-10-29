@@ -7,9 +7,9 @@ public sealed class RegionsLayerTests
     [Fact]
     public void Create_WithValidParameters_CreatesLayer()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 25);
+        var layer = RegionsLayer.Create(100, 100, 25);
 
-       
+
         Assert.NotNull(layer);
         Assert.Equal(100, layer.Width);
         Assert.Equal(100, layer.Height);
@@ -34,13 +34,12 @@ public sealed class RegionsLayerTests
     [Fact]
     public void Create_WithNonDivisibleDimensions_CreatesValidLayer()
     {
-       
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 30);
-        
+        var layer = RegionsLayer.Create(100, 100, 30);
+
         Assert.NotNull(layer);
         Assert.Equal(100, layer.Width);
         Assert.Equal(100, layer.Height);
-        
+
         var allTilesHaveRegion = true;
         for (var y = 0; y < 100; y++)
         for (var x = 0; x < 100; x++)
@@ -48,16 +47,16 @@ public sealed class RegionsLayerTests
             var regionId = layer.GetRegionId(x, y);
             allTilesHaveRegion &= layer.GetRegion(regionId) != null;
         }
-    
+
         Assert.True(allTilesHaveRegion);
     }
 
     [Fact]
     public void Create_GeneratesRegionsWithEqualArea()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
         var regionTileCounts = new Dictionary<ushort, int>();
-        
+
         for (var y = 0; y < 100; y++)
         for (var x = 0; x < 100; x++)
         {
@@ -66,7 +65,7 @@ public sealed class RegionsLayerTests
             regionTileCounts[regionId] = count + 1;
         }
 
-        var expectedArea = 100 * 100 / 100; 
+        var expectedArea = 100 * 100 / 100;
         Assert.Equal(100, regionTileCounts.Count);
         Assert.All(regionTileCounts.Values, count => Assert.Equal(expectedArea, count));
     }
@@ -74,7 +73,7 @@ public sealed class RegionsLayerTests
     [Fact]
     public void Create_AllTilesBelongToRegion()
     {
-        var layer = RegionsLayer.Create(width: 50, height: 50, targetRegionCount: 25);
+        var layer = RegionsLayer.Create(50, 50, 25);
         var allRegionIds = new HashSet<ushort>();
 
         for (var y = 0; y < 50; y++)
@@ -90,10 +89,10 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegionId_WithValidCoordinates_ReturnsRegionId()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var regionId = layer.GetRegionId(x: 5, y: 5);
-        
+        var regionId = layer.GetRegionId(5, 5);
+
         Assert.InRange(regionId, 0, 99);
     }
 
@@ -104,18 +103,18 @@ public sealed class RegionsLayerTests
     [InlineData(0, 100)]
     public void GetRegionId_WithInvalidCoordinates_ThrowsArgumentOutOfRangeException(int x, int y)
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
-        
+        var layer = RegionsLayer.Create(100, 100, 100);
+
         Assert.Throws<ArgumentOutOfRangeException>(() => layer.GetRegionId(x, y));
     }
 
     [Fact]
     public void GetRegionId_ReturnsConsistentResults()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
-        
-        var regionId1 = layer.GetRegionId(x: 15, y: 25);
-        var regionId2 = layer.GetRegionId(x: 15, y: 25);
+        var layer = RegionsLayer.Create(100, 100, 100);
+
+        var regionId1 = layer.GetRegionId(15, 25);
+        var regionId2 = layer.GetRegionId(15, 25);
 
         Assert.Equal(regionId1, regionId2);
     }
@@ -123,9 +122,9 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegion_WithValidId_ReturnsRegion()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
-        var regionId = layer.GetRegionId(x: 5, y: 5);
-        
+        var layer = RegionsLayer.Create(100, 100, 100);
+        var regionId = layer.GetRegionId(5, 5);
+
         var region = layer.GetRegion(regionId);
 
         Assert.NotNull(region);
@@ -136,18 +135,18 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegion_WithInvalidId_ThrowsArgumentException()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var exception = Assert.Throws<ArgumentException>(() => layer.GetRegion(id: 9999));
+        var exception = Assert.Throws<ArgumentException>(() => layer.GetRegion(9999));
         Assert.Contains("не найден", exception.Message);
     }
 
     [Fact]
     public void GetRegion_ReturnsCorrectNameFormat()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var region = layer.GetRegion(id: 0);
+        var region = layer.GetRegion(0);
 
 
         Assert.Matches(@"Region \[\d+,\d+\]", region.Name);
@@ -156,10 +155,10 @@ public sealed class RegionsLayerTests
     [Fact]
     public void IsInRegion_WhenTileBelongsToRegion_ReturnsTrue()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
-        var regionId = layer.GetRegionId(x: 5, y: 5);
-        
-        var result = layer.IsInRegion(x: 5, y: 5, regionId);
+        var layer = RegionsLayer.Create(100, 100, 100);
+        var regionId = layer.GetRegionId(5, 5);
+
+        var result = layer.IsInRegion(5, 5, regionId);
 
         Assert.True(result);
     }
@@ -167,10 +166,10 @@ public sealed class RegionsLayerTests
     [Fact]
     public void IsInRegion_WhenTileNotBelongsToRegion_ReturnsFalse()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
-        var regionId = layer.GetRegionId(x: 5, y: 5);
-        
-        var result = layer.IsInRegion(x: 95, y: 95, regionId);
+        var layer = RegionsLayer.Create(100, 100, 100);
+        var regionId = layer.GetRegionId(5, 5);
+
+        var result = layer.IsInRegion(95, 95, regionId);
 
         Assert.False(result);
     }
@@ -178,10 +177,10 @@ public sealed class RegionsLayerTests
     [Fact]
     public void IsInRegion_WithNonExistentRegionId_ReturnsFalse()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
-        
-        var result = layer.IsInRegion(x: 5, y: 5, regionId: 9999);
-        
+        var layer = RegionsLayer.Create(100, 100, 100);
+
+        var result = layer.IsInRegion(5, 5, 9999);
+
         Assert.False(result);
     }
 
@@ -195,7 +194,7 @@ public sealed class RegionsLayerTests
         int y,
         ushort regionId)
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
         Assert.Throws<ArgumentOutOfRangeException>(() => layer.IsInRegion(x, y, regionId));
     }
@@ -203,9 +202,9 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegionsInArea_WithSingleRegion_ReturnsSingleRegion()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var regions = layer.GetRegionsInArea(x: 11, y: 11, width: 5, height: 5);
+        var regions = layer.GetRegionsInArea(11, 11, 5, 5);
 
         Assert.Single(regions);
     }
@@ -213,9 +212,9 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegionsInArea_WithMultipleRegions_ReturnsAllRegions()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var regions = layer.GetRegionsInArea(x: 8, y: 8, width: 4, height: 4);
+        var regions = layer.GetRegionsInArea(8, 8, 4, 4);
 
         Assert.Equal(4, regions.Count);
     }
@@ -223,9 +222,9 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegionsInArea_WithEntireMap_ReturnsAllRegions()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var regions = layer.GetRegionsInArea(x: 0, y: 0, width: 100, height: 100);
+        var regions = layer.GetRegionsInArea(0, 0, 100, 100);
 
         Assert.Equal(100, regions.Count);
     }
@@ -243,7 +242,7 @@ public sealed class RegionsLayerTests
         int width,
         int height)
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             layer.GetRegionsInArea(x, y, width, height));
@@ -258,7 +257,7 @@ public sealed class RegionsLayerTests
         int width,
         int height)
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
         var exception = Assert.Throws<ArgumentOutOfRangeException>(() =>
             layer.GetRegionsInArea(x, y, width, height));
@@ -270,9 +269,9 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegionsInArea_ReturnsDistinctRegions()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var regions = layer.GetRegionsInArea(x: 0, y: 0, width: 50, height: 50);
+        var regions = layer.GetRegionsInArea(0, 0, 50, 50);
 
         var distinctRegionIds = regions.Select(r => r.Id).Distinct().Count();
         Assert.Equal(regions.Count, distinctRegionIds);
@@ -281,19 +280,19 @@ public sealed class RegionsLayerTests
     [Fact]
     public void GetRegionsInArea_OnRegionBoundary_ReturnsCorrectRegions()
     {
-        var layer = RegionsLayer.Create(width: 100, height: 100, targetRegionCount: 100);
+        var layer = RegionsLayer.Create(100, 100, 100);
 
-        var regions = layer.GetRegionsInArea(x: 9, y: 9, width: 2, height: 2);
+        var regions = layer.GetRegionsInArea(9, 9, 2, 2);
 
         Assert.Equal(4, regions.Count);
     }
-    
+
     [Fact]
     public void Region_SetAndGetMetadata_Works()
     {
         var layer = RegionsLayer.Create(100, 100, 25);
         var region = layer.GetRegion(0);
-        
+
         region.SetMetadata("Population", 100000);
         region.SetMetadata("Owner", "Player1");
 
@@ -307,10 +306,10 @@ public sealed class RegionsLayerTests
         var layer = RegionsLayer.Create(100, 100, 25);
         var region = layer.GetRegion(0);
         region.SetMetadata("Population", 100000);
-        
+
         Assert.True(region.TryGetMetadata("Population", out int population));
         Assert.Equal(100000, population);
-    
+
         Assert.False(region.TryGetMetadata("NonExistent", out int _));
     }
 
@@ -320,7 +319,7 @@ public sealed class RegionsLayerTests
         var layer = RegionsLayer.Create(100, 100, 25);
         var region = layer.GetRegion(0);
         region.SetMetadata("Key", "Value");
-        
+
         Assert.True(region.HasMetadata("Key"));
         Assert.False(region.HasMetadata("NonExistent"));
     }
@@ -331,9 +330,9 @@ public sealed class RegionsLayerTests
         var layer = RegionsLayer.Create(100, 100, 25);
         var region = layer.GetRegion(0);
         region.SetMetadata("Key", "Value");
-        
+
         var removed = region.RemoveMetadata("Key");
-        
+
         Assert.True(removed);
         Assert.False(region.HasMetadata("Key"));
     }

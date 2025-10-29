@@ -1,24 +1,23 @@
-﻿
-
-using MapSystem.Core.Common;
+﻿using MapSystem.Core.Common;
 
 namespace MapSystem.Core.RegionLayer;
 
 public sealed class RegionsLayer : IRegionLayer
 {
+    private readonly int _regionHeight;
     private readonly ushort[] _regionIds;
     private readonly Dictionary<ushort, Region> _regions;
+    private readonly int _regionsPerSide;
 
     private readonly int _regionWidth;
-    private readonly int _regionHeight;
-    private readonly int _regionsPerSide;
+
     private RegionsLayer(
         int width,
         int height,
         ushort[] regionIds,
         Dictionary<ushort, Region> regions,
         int regionWidth,
-        int regionHeight, 
+        int regionHeight,
         int regionsPerSide)
     {
         Width = width;
@@ -64,22 +63,19 @@ public sealed class RegionsLayer : IRegionLayer
         ValidateHelpers.ValidateArea(x, y, width, height);
         ValidateHelpers.ValidateAreaBounds(x, y, width, height, Width, Height);
 
-        
+
         var startGridX = x / _regionWidth;
         var startGridY = y / _regionHeight;
         var endGridX = Math.Min((x + width - 1) / _regionWidth, _regionsPerSide - 1);
         var endGridY = Math.Min((y + height - 1) / _regionHeight, _regionsPerSide - 1);
 
         var regions = new List<Region>();
-    
+
         for (var gridY = startGridY; gridY <= endGridY; gridY++)
         for (var gridX = startGridX; gridX <= endGridX; gridX++)
         {
             var regionId = (ushort)(gridY * _regionsPerSide + gridX);
-            if (_regions.TryGetValue(regionId, out var region))
-            {
-                regions.Add(region);
-            }
+            if (_regions.TryGetValue(regionId, out var region)) regions.Add(region);
         }
 
         return regions;
@@ -114,8 +110,8 @@ public sealed class RegionsLayer : IRegionLayer
             var startX = gridX * regionWidth;
             var startY = gridY * regionHeight;
 
-            var endX = (gridX == regionsPerSide - 1) ? width : startX + regionWidth;
-            var endY = (gridY == regionsPerSide - 1) ? height : startY + regionHeight;
+            var endX = gridX == regionsPerSide - 1 ? width : startX + regionWidth;
+            var endY = gridY == regionsPerSide - 1 ? height : startY + regionHeight;
 
             for (var tileY = startY; tileY < endY; tileY++)
             for (var tileX = startX; tileX < endX; tileX++)
@@ -128,12 +124,12 @@ public sealed class RegionsLayer : IRegionLayer
         }
 
         return new RegionsLayer(
-            width, 
-            height, 
-            regionIds, 
+            width,
+            height,
+            regionIds,
             regions,
-            regionWidth,      
-            regionHeight,     
-            regionsPerSide);  
+            regionWidth,
+            regionHeight,
+            regionsPerSide);
     }
 }
