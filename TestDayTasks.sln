@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapLib", "MapLib\MapLib.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{809F3454-8A89-45D3-9B33-3B5894E8657F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Objects", "Objects\Objects.csproj", "{D39DD733-A720-473D-82FE-DBDFF5977B30}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{809F3454-8A89-45D3-9B33-3B5894E8657F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{809F3454-8A89-45D3-9B33-3B5894E8657F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{809F3454-8A89-45D3-9B33-3B5894E8657F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D39DD733-A720-473D-82FE-DBDFF5977B30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D39DD733-A720-473D-82FE-DBDFF5977B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D39DD733-A720-473D-82FE-DBDFF5977B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D39DD733-A720-473D-82FE-DBDFF5977B30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
