@@ -20,27 +20,31 @@ public class ObjectStorage : IObjectStorage
         ObjectData objectData)
     {
         ArgumentNullException.ThrowIfNull(objectData);
-        
+    
         if (string.IsNullOrWhiteSpace(objectData.Id))
             throw new ArgumentException("Object ID cannot be empty", nameof(objectData));
-        
+    
         var dataKey = GetDataKey(objectData.Id);
         var json = JsonSerializer.Serialize(objectData);
-        var transaction = _redis.CreateTransaction(Condition.KeyNotExists(dataKey));
     
-        var setTask = transaction.StringSetAsync(dataKey, json);
-        var geoTask = transaction.GeoAddAsync(GeoIndexKey, 
+        var transaction = _redis.CreateTransaction();
+    
+        // Добавляем condition как отдельную проверку
+        transaction.AddCondition(Condition.KeyNotExists(dataKey));
+    
+        _ = transaction.StringSetAsync(dataKey, json);
+        _ = transaction.GeoAddAsync(
+            GeoIndexKey, 
             CoordinatesConverter.MapXToLongitude(objectData.X), 
             CoordinatesConverter.MapYToLatitude(objectData.Y), 
             objectData.Id);
-    
+
         var committed = await transaction.ExecuteAsync();
-    
+
         if (!committed)
-            throw new InvalidOperationException("Failed to create object due to transaction failure");
-    
-        await Task.WhenAll(setTask, geoTask);
-    
+            throw new InvalidOperationException(
+                $"Object with ID '{objectData.Id}' already exists or transaction failed");
+
         return objectData;
     }
     
@@ -78,7 +82,38 @@ public class ObjectStorage : IObjectStorage
         
         return JsonSerializer.Deserialize<ObjectData>(json);
     }
-    
+
+    public async Task<ObjectData> UpdateObjectAsync(ObjectData objectData)
+    {
+        ArgumentNullException.ThrowIfNull(objectData);
+
+        if (string.IsNullOrWhiteSpace(objectData.Id))
+            throw new ArgumentException("Object ID cannot be empty", nameof(objectData));
+
+        var dataKey = GetDataKey(objectData.Id);
+
+        var json = JsonSerializer.Serialize(objectData);
+
+        var transaction = _redis.CreateTransaction();
+
+        transaction.AddCondition(Condition.KeyExists(dataKey));
+
+        _ = transaction.StringSetAsync(dataKey, json);
+
+        _ = transaction.GeoAddAsync(
+            GeoIndexKey,
+            CoordinatesConverter.MapXToLongitude(objectData.X),
+            CoordinatesConverter.MapYToLatitude(objectData.Y),
+            objectData.Id);
+
+        var committed = await transaction.ExecuteAsync();
+
+        if (!committed)
+            throw new InvalidOperationException($"Failed to update object '{objectData.Id}'");
+
+        return objectData;
+    }
+
     public async Task<IReadOnlyList<ObjectData>> GetObjectsInZoneAsync(
         double centerX, 
         double centerY, 

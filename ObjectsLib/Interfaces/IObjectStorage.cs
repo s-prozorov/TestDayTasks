@@ -9,6 +9,8 @@ public interface IObjectStorage
     Task<bool> DeleteObjectAsync(string id);
         
     Task<ObjectData?> GetObjectAsync(string id);
+    
+    Task<ObjectData> UpdateObjectAsync(ObjectData objectData);
         
     Task<IReadOnlyList<ObjectData>> GetObjectsInZoneAsync(
         double centerX, 
