@@ -419,3 +419,6 @@ FodyWeavers.xsd
 
 # Build Rider config
 .idea
+
+# Solution
+*.sln
