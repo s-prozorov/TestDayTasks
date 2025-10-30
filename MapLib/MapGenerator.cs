@@ -1,4 +1,4 @@
-using DefaultNamespace;
+using MapLib.Enum;
 
 namespace MapLib;
 

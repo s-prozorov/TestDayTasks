@@ -1,4 +1,4 @@
-namespace MapLib;
+namespace MapLib.Models;
 
 public class TerritoryInfo
 {

@@ -1,5 +1,5 @@
-using DefaultNamespace;
 using MapLib;
+using MapLib.Enum;
 
 namespace UnitTests;
 

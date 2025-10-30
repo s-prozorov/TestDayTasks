@@ -1,6 +1,6 @@
-﻿using DefaultNamespace;
+﻿using MapLib.Enum;
 
-namespace MapLib;
+namespace MapLib.Models;
 
 public readonly struct Tile
 {

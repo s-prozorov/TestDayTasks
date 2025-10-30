@@ -1,4 +1,4 @@
-namespace DefaultNamespace;
+namespace MapLib.Enum;
 
 public enum TileType : int
 {

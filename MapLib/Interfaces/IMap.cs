@@ -1,6 +1,7 @@
-using MapLib;
+using MapLib.Enum;
+using MapLib.Models;
 
-namespace DefaultNamespace;
+namespace MapLib.Interfaces;
 
 public interface IMap
 {

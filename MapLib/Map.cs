@@ -1,4 +1,6 @@
-using DefaultNamespace;
+using MapLib.Enum;
+using MapLib.Interfaces;
+using MapLib.Models;
 
 namespace MapLib;
 
