@@ -1,8 +1,8 @@
 namespace MapLib.Models;
 
-public class TerritoryInfo
+public record TerritoryInfo(int Id, int OwnerId, string Name)
 {
-    public int Id { get; set; }
-    public int OwnerId { get; set; }
-    public string Name { get; set; }
+    public int Id { get; init; } = Id;
+    public int OwnerId { get; init; } = OwnerId;
+    public string Name { get; init; } = Name;
 }

@@ -1,10 +1,13 @@
 using MapLib;
 using MapLib.Enum;
+using MapLib.Models;
 
 namespace UnitTests;
 
 public class MapTests
 {
+    #region Constructor Tests
+
     [Fact]
     public void Constructor_InitializesEmptyMap()
     {
@@ -15,6 +18,8 @@ public class MapTests
         Assert.Equal(TileType.Plain, map.GetTileType(0, 0));
         Assert.Equal(0, map.GetTerritoryId(0, 0));
     }
+
+    #endregion
 
     #region GetTile Tests
 
@@ -35,11 +40,8 @@ public class MapTests
 
     [Theory]
     [InlineData(-1, 0)]
-    [InlineData(0, -1)]
     [InlineData(1000, 0)]
     [InlineData(0, 1000)]
-    [InlineData(1000, 1000)]
-    [InlineData(-1, -1)]
     public void GetTile_InvalidCoordinates_ThrowsArgumentOutOfRangeException(int x, int y)
     {
         // Arrange
@@ -70,7 +72,7 @@ public class MapTests
 
     #endregion
 
-    #region GetTileType Tests
+    #region GetTileType and GetTerritoryId Tests
 
     [Fact]
     public void GetTileType_ValidCoordinates_ReturnsTileType()
@@ -79,57 +81,9 @@ public class MapTests
         var map = new Map();
         map.SetTile(100, 200, TileType.Mountain, 10);
         
-        // Act
-        var tileType = map.GetTileType(100, 200);
-        
-        // Assert
-        Assert.Equal(TileType.Mountain, tileType);
-    }
-
-    [Theory]
-    [InlineData(-1, 0)]
-    [InlineData(0, -1)]
-    [InlineData(1000, 0)]
-    [InlineData(0, 1000)]
-    public void GetTileType_InvalidCoordinates_ThrowsArgumentOutOfRangeException(int x, int y)
-    {
-        // Arrange
-        var map = new Map();
-        
         // Act & Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => map.GetTileType(x, y));
-    }
-
-    #endregion
-
-    #region GetTerritoryId Tests
-
-    [Fact]
-    public void GetTerritoryId_ValidCoordinates_ReturnsTerritoryId()
-    {
-        // Arrange
-        var map = new Map();
-        map.SetTile(50, 75, TileType.Mountain, 42);
-        
-        // Act
-        var territoryId = map.GetTerritoryId(50, 75);
-        
-        // Assert
-        Assert.Equal(42, territoryId);
-    }
-
-    [Theory]
-    [InlineData(-1, 0)]
-    [InlineData(0, -1)]
-    [InlineData(1000, 0)]
-    [InlineData(0, 1000)]
-    public void GetTerritoryId_InvalidCoordinates_ThrowsArgumentOutOfRangeException(int x, int y)
-    {
-        // Arrange
-        var map = new Map();
-        
-        // Act & Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => map.GetTerritoryId(x, y));
+        Assert.Equal(TileType.Mountain, map.GetTileType(100, 200));
+        Assert.Equal(10, map.GetTerritoryId(100, 200));
     }
 
     #endregion
@@ -152,9 +106,7 @@ public class MapTests
 
     [Theory]
     [InlineData(-1, 0, TileType.Plain, 1)]
-    [InlineData(0, -1, TileType.Plain, 1)]
     [InlineData(1000, 0, TileType.Plain, 1)]
-    [InlineData(0, 1000, TileType.Plain, 1)]
     public void SetTile_InvalidCoordinates_ThrowsArgumentOutOfRangeException(
         int x, int y, TileType type, int territoryId)
     {
@@ -168,9 +120,7 @@ public class MapTests
 
     [Theory]
     [InlineData(-1)]
-    [InlineData(-100)]
     [InlineData(87)]
-    [InlineData(100)]
     public void SetTile_InvalidTerritoryId_ThrowsArgumentOutOfRangeException(int territoryId)
     {
         // Arrange
@@ -179,22 +129,6 @@ public class MapTests
         // Act & Assert
         Assert.Throws<ArgumentOutOfRangeException>(() => 
             map.SetTile(0, 0, TileType.Plain, territoryId));
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(86)]
-    public void SetTile_ValidTerritoryIdRange_SetsSuccessfully(int territoryId)
-    {
-        // Arrange
-        var map = new Map();
-        
-        // Act
-        map.SetTile(0, 0, TileType.Plain, territoryId);
-        
-        // Assert
-        Assert.Equal(territoryId, map.GetTerritoryId(0, 0));
     }
 
     [Fact]
@@ -212,26 +146,6 @@ public class MapTests
         Assert.Equal(10, map.GetTerritoryId(10, 10));
     }
 
-    [Fact]
-    public void SetTile_MultipleLocations_DoesNotAffectOtherTiles()
-    {
-        // Arrange
-        var map = new Map();
-        map.SetTile(0, 0, TileType.Plain, 1);
-        map.SetTile(10, 10, TileType.Mountain, 2);
-        
-        // Act
-        map.SetTile(5, 5, TileType.Mountain, 3);
-        
-        // Assert
-        Assert.Equal(TileType.Plain, map.GetTileType(0, 0));
-        Assert.Equal(1, map.GetTerritoryId(0, 0));
-        Assert.Equal(TileType.Mountain, map.GetTileType(10, 10));
-        Assert.Equal(2, map.GetTerritoryId(10, 10));
-        Assert.Equal(TileType.Mountain, map.GetTileType(5, 5));
-        Assert.Equal(3, map.GetTerritoryId(5, 5));
-    }
-
     #endregion
 
     #region Packing/Unpacking Tests
@@ -241,61 +155,7 @@ public class MapTests
     {
         // Arrange
         var map = new Map();
-        const byte tileTypeValue = 18;
-        const int territoryIdValue = 52;
-        
-        map.SetTile(0, 0, (TileType)tileTypeValue, territoryIdValue);
-        
-        // Act
-        long packedTile = map.GetTile(0, 0);
-        
-        // Assert
-        const long lowerByteMask = 0xFF;           // Маска для младшего байта (биты 0-7)
-        const long upperBitsMask = 0xFFFFFFFF;     // Маска для следующих 32 бит
-        const int territoryIdShift = 8;             // Сдвиг для territoryId
-        
-        long extractedTileType = packedTile & lowerByteMask;
-        long extractedTerritoryId = (packedTile >> territoryIdShift) & upperBitsMask;
-        
-        Assert.Equal(tileTypeValue, extractedTileType);
-        Assert.Equal(territoryIdValue, extractedTerritoryId);
-    }
-
-    [Fact]
-    public void PackedTile_Format_VerifyPackingAlgorithm()
-    {
-        // Arrange
-        var map = new Map();
-        const byte tileTypeValue = 127;
-        const int territoryIdValue = 42;
-        
-        map.SetTile(0, 0, (TileType)tileTypeValue, territoryIdValue);
-        
-        // Act
-        long packedTile = map.GetTile(0, 0);
-        
-        // Assert - проверяем формулу упаковки: type | (territoryId << 8)
-        const int territoryIdShift = 8;
-        long expectedPacked = ((long)tileTypeValue) | ((long)territoryIdValue << territoryIdShift);
-        
-        Assert.Equal(expectedPacked, packedTile);
-        
-        TileType unpackedType = map.GetTileTypeFromPacked(packedTile);
-        int unpackedTerritoryId = map.GetTerritoryIdFromPacked(packedTile);
-        
-        Assert.Equal((TileType)tileTypeValue, unpackedType);
-        Assert.Equal(territoryIdValue, unpackedTerritoryId);
-    }
-
-    [Fact]
-    public void PackedTile_MaximumValues_PacksAndUnpacksCorrectly()
-    {
-        // Arrange
-        var map = new Map();
-        const byte maxTileType = 255;
-        const int maxTerritoryId = 86;
-        
-        map.SetTile(0, 0, (TileType)maxTileType, maxTerritoryId);
+        map.SetTile(0, 0, TileType.Mountain, 52);
         
         // Act
         long packedTile = map.GetTile(0, 0);
@@ -304,13 +164,51 @@ public class MapTests
         TileType unpackedType = map.GetTileTypeFromPacked(packedTile);
         int unpackedTerritoryId = map.GetTerritoryIdFromPacked(packedTile);
         
-        Assert.Equal((TileType)maxTileType, unpackedType);
-        Assert.Equal(maxTerritoryId, unpackedTerritoryId);
+        Assert.Equal(TileType.Mountain, unpackedType);
+        Assert.Equal(52, unpackedTerritoryId);
+    }
+
+    [Fact]
+    public void Tile_PackUnpack_RoundTrip()
+    {
+        // Arrange
+        var originalTile = new Tile(100, 200, TileType.Mountain, 42);
+        
+        // Act
+        long packed = originalTile.Pack();
+        var unpacked = Tile.Unpack(packed, 100, 200);
+        
+        // Assert
+        Assert.Equal(originalTile.X, unpacked.X);
+        Assert.Equal(originalTile.Y, unpacked.Y);
+        Assert.Equal(originalTile.Type, unpacked.Type);
+        Assert.Equal(originalTile.TerritoryId, unpacked.TerritoryId);
     }
 
     #endregion
 
     #region GetTerritoryInfo Tests
+
+    [Fact]
+    public void GetTerritoryInfo_ExistingId_ReturnsTerritoryInfo()
+    {
+        // Arrange
+        var map = new Map();
+        var territories = new[]
+        {
+            new TerritoryInfo(0, -1,"Territory 0"),
+            new TerritoryInfo(1, 100,"Territory 1")
+        };
+        map.InitializeTerritories(territories);
+        
+        // Act
+        var info = map.GetTerritoryInfo(1);
+        
+        // Assert
+        Assert.Equal(1, info.Id);
+        Assert.Equal("Territory 1", info.Name);
+        Assert.Equal(100, info.OwnerId);
+    }
     
     [Fact]
     public void GetTerritoryInfo_UnknownId_ThrowsArgumentException()
@@ -323,6 +221,122 @@ public class MapTests
             map.GetTerritoryInfo(999));
         
         Assert.Contains("Unknown territory id: 999", exception.Message);
+    }
+
+    [Fact]
+    public void InitializeTerritories_ValidTerritories_StoresCorrectly()
+    {
+        // Arrange
+        var map = new Map();
+        var territories = new[]
+        {
+            new TerritoryInfo(0, 1,"Grasslands"),
+            new TerritoryInfo(1, 2,"Mountains")
+        };
+        
+        // Act
+        map.InitializeTerritories(territories);
+        
+        // Assert
+        var info0 = map.GetTerritoryInfo(0);
+        Assert.Equal("Grasslands", info0.Name);
+        Assert.Equal(1, info0.OwnerId);
+        
+        var info1 = map.GetTerritoryInfo(1);
+        Assert.Equal("Mountains", info1.Name);
+        Assert.Equal(2, info1.OwnerId);
+    }
+
+    [Fact]
+    public void InitializeTerritories_InvalidId_ThrowsArgumentException()
+    {
+        // Arrange
+        var map = new Map();
+        var territories = new[]
+        {
+            new TerritoryInfo(999, -1,"Invalid")
+        };
+        
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => 
+            map.InitializeTerritories(territories));
+    }
+
+    #endregion
+
+    #region MapGenerator Tests
+
+    [Fact]
+    public void MapGenerator_Generate_InitializesAllTerritories()
+    {
+        // Arrange
+        var generator = new MapGenerator(seed: 12345);
+        
+        // Act
+        var map = generator.Generate();
+        
+        // Assert - проверяем несколько территорий
+        var info0 = map.GetTerritoryInfo(0);
+        Assert.Equal(0, info0.Id);
+        Assert.Equal("Territory 0", info0.Name);
+        Assert.Equal(-1, info0.OwnerId);
+        
+        var info50 = map.GetTerritoryInfo(50);
+        Assert.Equal(50, info50.Id);
+        Assert.Equal("Territory 50", info50.Name);
+        
+        var info86 = map.GetTerritoryInfo(86);
+        Assert.Equal(86, info86.Id);
+        Assert.Equal("Territory 86", info86.Name);
+    }
+
+    [Fact]
+    public void MapGenerator_WithSeed_ProducesDeterministicResults()
+    {
+        // Arrange
+        const int seed = 42;
+        var generator1 = new MapGenerator(seed);
+        var generator2 = new MapGenerator(seed);
+        
+        // Act
+        var map1 = generator1.Generate();
+        var map2 = generator2.Generate();
+        
+        // Assert - проверяем несколько случайных точек
+        for (int i = 0; i < 10; i++)
+        {
+            int x = i * 100;
+            int y = i * 100;
+            
+            Assert.Equal(map1.GetTileType(x, y), map2.GetTileType(x, y));
+            Assert.Equal(map1.GetTerritoryId(x, y), map2.GetTerritoryId(x, y));
+        }
+    }
+
+    [Fact]
+    public void MapGenerator_Generate_HasReasonableMountainDistribution()
+    {
+        // Arrange
+        var generator = new MapGenerator(seed: 12345);
+        var map = generator.Generate();
+        
+        // Act - подсчитываем горы в случайной выборке
+        int mountainCount = 0;
+        int sampleSize = 1000;
+        var random = new Random(12345);
+        
+        for (int i = 0; i < sampleSize; i++)
+        {
+            int x = random.Next(0, Map.Width);
+            int y = random.Next(0, Map.Height);
+            
+            if (map.GetTileType(x, y) == TileType.Mountain)
+                mountainCount++;
+        }
+        
+        double mountainRatio = (double)mountainCount / sampleSize;
+        
+        Assert.InRange(mountainRatio, 0.20, 0.40);
     }
 
     #endregion

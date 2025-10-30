@@ -10,15 +10,15 @@ public class Map : IMap
     public const int Height = 1000;
     public const int MaxTerritories = 87;
     
-    private TileType[,] _tileTypes;
-    private int[,] _territoryIds;
-    private readonly Dictionary<int, TerritoryInfo> _territories = new(MaxTerritories);
+    private readonly Tile[,] _tiles;
+    private readonly Dictionary<int, TerritoryInfo> _territories;
+
     public Map()
     {
-        _tileTypes = new TileType[Width, Height];
-        _territoryIds = new int[Width, Height];
+        _tiles = new Tile[Width, Height];
+        _territories = new Dictionary<int, TerritoryInfo>(MaxTerritories);
     }
-    
+
     /// <summary>
     /// Возвращает упакованное представление тайла в виде 64-битного целого числа.
     /// Младший байт содержит значение TileType, 
@@ -26,60 +26,81 @@ public class Map : IMap
     /// </summary>
     public long GetTile(int x, int y)
     {
-        ValidateMapBounds(x, y);
-
-        TileType type = _tileTypes[x, y];
-        int territoryId = _territoryIds[x, y];
-        
-        return ((long)type) | ((long)territoryId << 8);
+        ValidateCoordinates(x, y);
+        return _tiles[x, y].Pack();
     }
     
     public TileType GetTileType(int x, int y)
     {
-        ValidateMapBounds(x, y);
-
-        return _tileTypes[x, y];
+        ValidateCoordinates(x, y);
+        return _tiles[x, y].Type;
     }
     
     public int GetTerritoryId(int x, int y)
     {
-        ValidateMapBounds(x, y);
-
-        return _territoryIds[x, y];
+        ValidateCoordinates(x, y);
+        return _tiles[x, y].TerritoryId;
     }
-
+    
     public TerritoryInfo GetTerritoryInfo(int id)
     {
         if (_territories.TryGetValue(id, out var territory))
             return territory;
         
-        throw new ArgumentException($"Unknown territory id: {id}");
+        throw new ArgumentException($"Unknown territory id: {id}", nameof(id));
     }
     
     public void SetTile(int x, int y, TileType type, int territoryId)
     {
-        ValidateMapBounds(x, y);
-
+        ValidateCoordinates(x, y);
+        
         if (territoryId < 0 || territoryId >= MaxTerritories)
-            throw new ArgumentOutOfRangeException($"Territory ID must be between 0 and {MaxTerritories - 1}");
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(territoryId),
+                $"Territory ID must be between 0 and {MaxTerritories - 1}");
+        }
 
-        _tileTypes[x, y] = type;
-        _territoryIds[x, y] = territoryId;
+        _tiles[x, y] = new Tile(x, y, type, (byte)territoryId);
     }
     
     public TileType GetTileTypeFromPacked(long packedTile)
     {
         return (TileType)(packedTile & 0xFF);
     }
-
+    
     public int GetTerritoryIdFromPacked(long packedTile)
     {
         return (int)(packedTile >> 8);
     }
 
-    private void ValidateMapBounds(int width, int height)
+    /// <summary>
+    /// Инициализирует информацию о территориях.
+    /// Должен быть вызван после генерации карты.
+    /// </summary>
+    public void InitializeTerritories(IEnumerable<TerritoryInfo> territories)
     {
-        if (width < 0 || width >= Width || height < 0 || height >= Height)
-            throw new ArgumentOutOfRangeException($"Coordinates ({width}, {height}) are out of bounds");
+        _territories.Clear();
+        
+        foreach (var territory in territories)
+        {
+            if (territory.Id < 0 || territory.Id >= MaxTerritories)
+            {
+                throw new ArgumentException(
+                    $"Territory ID {territory.Id} is out of valid range [0, {MaxTerritories})",
+                    nameof(territories));
+            }
+            
+            _territories[territory.Id] = territory;
+        }
+    }
+
+    private void ValidateCoordinates(int x, int y)
+    {
+        if (x < 0 || x >= Width || y < 0 || y >= Height)
+        {
+            throw new ArgumentOutOfRangeException(
+                $"Coordinates ({x}, {y}) are out of bounds. Valid range: [0, {Width}) x [0, {Height})");
+        }
     }
 }
