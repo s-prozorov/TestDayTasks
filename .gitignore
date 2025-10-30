@@ -422,3 +422,6 @@ FodyWeavers.xsd
 
 # Solution
 *.sln
+
+#llm
+/llm

@@ -127,4 +127,42 @@ public class CoordinatesConverterTests
         // Assert
         Assert.Equal(originalLatitude, latitude, precision: 10);
     }
+    
+    [Fact]
+    public void CalculateDistanceKm_OneTileHorizontallyAtEquator_ReturnsApproximately40Km()
+    {
+        // Arrange
+        double x1 = 500, y1 = 500; // Экватор
+        double x2 = 501, y2 = 500; // +1 тайл по X
+        
+        // 1 тайл по X = 0.36° × 111 км/° ≈ 40 км
+        
+        // Act
+        var distance = CoordinatesConverter.CalculateDistanceKm(x1, y1, x2, y2);
+        
+        // Assert
+        Assert.InRange(distance, 38, 42);
+    }
+    
+    [Fact]
+    public void RectangleToCircleRadiusKm_SquareTenByTenAtEquator_ReturnsCorrectRadius()
+    {
+        // Arrange
+        double centerX = 500, centerY = 500; // Экватор
+        double halfWidth = 5;
+        double halfHeight = 5;
+        
+        // Диагональ от центра до угла = sqrt(5² + 5²) ≈ 7.07 тайлов
+        // На экваторе:
+        // - По X: ~40 км/тайл
+        // - По Y: ~20 км/тайл
+        // Расстояние до угла ≈ sqrt((5×40)² + (5×20)²) ≈ sqrt(40000 + 10000) ≈ 224 км
+        
+        // Act
+        var radiusKm = CoordinatesConverter.RectangleToCircleRadiusKm(
+            centerX, centerY, halfWidth, halfHeight);
+        
+        // Assert
+        Assert.InRange(radiusKm, 210, 240);
+    }
 }
