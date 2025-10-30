@@ -24,6 +24,7 @@
     <ItemGroup>
       <ProjectReference Include="..\MapLib\MapLib.csproj" />
       <ProjectReference Include="..\ObjectsLib\ObjectsLib.csproj" />
+      <ProjectReference Include="..\MapService\MapService.csproj" />
     </ItemGroup>
 
 </Project>
