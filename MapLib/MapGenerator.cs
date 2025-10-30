@@ -95,17 +95,17 @@ public class MapGenerator
     private int FindNearestTerritory(int x, int y, List<(int x, int y)> centers)
     {
         int nearestId = 0;
-        double minDistance = double.MaxValue;
+        double minDistanceSquared = double.MaxValue;
 
         for (int i = 0; i < centers.Count; i++)
         {
             int dx = x - centers[i].x;
             int dy = y - centers[i].y;
-            double distance = Math.Sqrt(dx * dx + dy * dy);
+            double distanceSquared = dx * dx + dy * dy;
 
-            if (distance < minDistance)
+            if (distanceSquared < minDistanceSquared)
             {
-                minDistance = distance;
+                minDistanceSquared = distanceSquared;
                 nearestId = i;
             }
         }

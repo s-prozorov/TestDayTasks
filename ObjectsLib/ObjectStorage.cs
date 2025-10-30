@@ -17,8 +17,7 @@ public class ObjectStorage : IObjectStorage
     }
     
     public async Task<ObjectData> CreateObjectAsync(
-        ObjectData objectData, 
-        CancellationToken cancellationToken = default)
+        ObjectData objectData)
     {
         ArgumentNullException.ThrowIfNull(objectData);
         
@@ -45,7 +44,7 @@ public class ObjectStorage : IObjectStorage
         return objectData;
     }
     
-    public async Task<bool> DeleteObjectAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteObjectAsync(string id)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
     
@@ -67,7 +66,7 @@ public class ObjectStorage : IObjectStorage
         return geoRemoved || dataRemoved;
     }
     
-    public async Task<ObjectData> GetObjectAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<ObjectData> GetObjectAsync(string id)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         
@@ -83,8 +82,7 @@ public class ObjectStorage : IObjectStorage
     public async Task<IReadOnlyList<ObjectData>> GetObjectsInZoneAsync(
         double centerX, 
         double centerY, 
-        double radiusKm, 
-        CancellationToken cancellationToken = default)
+        double radiusKm)
     {
         if (radiusKm <= 0)
             throw new ArgumentOutOfRangeException(nameof(radiusKm), "Radius must be positive");
@@ -121,7 +119,7 @@ public class ObjectStorage : IObjectStorage
         return objects;
     }
     
-    public async Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(string id)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         
