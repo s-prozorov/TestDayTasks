@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapLib", "MapLib\MapLib.csproj", "{BCB3BB94-B1C0-4EDD-A9C4-D133EB6E66A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{809F3454-8A89-45D3-9B33-3B5894E8657F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCB3BB94-B1C0-4EDD-A9C4-D133EB6E66A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCB3BB94-B1C0-4EDD-A9C4-D133EB6E66A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCB3BB94-B1C0-4EDD-A9C4-D133EB6E66A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCB3BB94-B1C0-4EDD-A9C4-D133EB6E66A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{809F3454-8A89-45D3-9B33-3B5894E8657F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{809F3454-8A89-45D3-9B33-3B5894E8657F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{809F3454-8A89-45D3-9B33-3B5894E8657F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{809F3454-8A89-45D3-9B33-3B5894E8657F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
