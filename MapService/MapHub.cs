@@ -4,30 +4,36 @@ using MapService.Requests;
 using MapService.Response;
 using Microsoft.Extensions.Logging;
 
+namespace MapService;
+
 public class MapHub : StreamingHubBase<IMapHub, IMapHubReceiver>, IMapHub
 {
     private const string GlobalGroup = "map_events";
     private readonly ILogger<MapHub> _logger;
     private readonly IMapService _mapService;
-    private readonly IMapEventBroadcaster _objectEventPublisher;
+    private readonly MapGroupManager _groupManager;
 
-    public MapHub(ILogger<MapHub> logger, 
-        IMapService mapService, 
-        IMapEventBroadcaster objectEventPublisher)
+    public MapHub(
+        ILogger<MapHub> logger,
+        IMapService mapService,
+        MapGroupManager groupManager)
     {
         _logger = logger;
         _mapService = mapService;
-        _objectEventPublisher = objectEventPublisher;
+        _groupManager = groupManager;
     }
 
     protected override async ValueTask OnConnecting()
     {
-        await _objectEventPublisher.InitializeGroupAsync(Group);
-        await Group.AddAsync(GlobalGroup);
+        // Добавляем клиента в глобальную группу
+        var group = await Group.AddAsync(GlobalGroup);
+
+        // Регистрируем группу в менеджере (для broadcast из фонового сервиса)
+        _groupManager.SetGroup(group);
 
         _logger.LogInformation(
-            "Client {ConnectionId} connected",
-            ConnectionId);
+            "Client {ConnectionId} connected and joined group {GroupName}",
+            ConnectionId, GlobalGroup);
     }
 
     protected override ValueTask OnDisconnected()
@@ -35,7 +41,7 @@ public class MapHub : StreamingHubBase<IMapHub, IMapHubReceiver>, IMapHub
         _logger.LogInformation(
             "Client {ConnectionId} disconnected",
             ConnectionId);
-        
+
         return CompletedTask;
     }
 

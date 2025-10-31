@@ -18,7 +18,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(5000, listenOptions =>
+    var port = Environment.GetEnvironmentVariable("SERVER_PORT");
+    var serverPort = port != null ? int.Parse(port) : 5001;
+
+    options.ListenAnyIP(serverPort, listenOptions =>
     {
         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
     });
@@ -41,7 +44,11 @@ builder.Services.AddSingleton<IMap>(sp =>
 
 builder.Services.AddSingleton<IObjectStorage, ObjectStorage>();
 
-builder.Services.AddSingleton<IMapEventBroadcaster, MapEventBroadcaster>();
+builder.Services.AddSingleton<IMapEventBroadcaster, MapService.MapEventBroadcaster>();
+builder.Services.AddSingleton<MapService.MapGroupManager>();
+builder.Services.AddHostedService<MapService.MapEventBroadcastService>();
+
+builder.Services.AddSingleton<MapService.Interfaces.IMapService, MapService.MapClientService>();
 
 builder.Services.AddGrpc();
 builder.Services.AddMagicOnion();

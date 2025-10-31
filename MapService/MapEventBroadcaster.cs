@@ -1,97 +1,52 @@
-using MagicOnion.Server.Hubs;
 using MapService.Events;
 using MapService.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Threading.Channels;
 
-public class MapEventBroadcaster : IMapEventBroadcaster, IDisposable
+namespace MapService;
+
+public class MapEventBroadcaster : IMapEventBroadcaster
 {
-    private const string GlobalGroup = "map_events";
     private readonly ILogger<MapEventBroadcaster> _logger;
-    private IGroup<IMapHubReceiver> _globalGroup;
-    private readonly SemaphoreSlim _groupLock = new(1, 1);
+    private readonly Channel<object> _eventChannel;
 
     public MapEventBroadcaster(ILogger<MapEventBroadcaster> logger)
     {
         _logger = logger;
+        // Создаем unbounded channel для событий
+        _eventChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
+        {
+            SingleReader = false, // Может быть несколько читателей (каждый hub instance)
+            SingleWriter = false  // Может быть несколько писателей
+        });
     }
 
-    /// <summary>
-    /// Инициализирует глобальную группу. Вызывается из Hub при первом подключении.
-    /// </summary>
-    public async Task InitializeGroupAsync(HubGroupRepository<IMapHubReceiver> groupRepository)
+    public ChannelReader<object> Events => _eventChannel.Reader;
+
+    public async Task BroadcastObjectAddedAsync(ObjectAddedEvent ev)
     {
-        if (_globalGroup != null) 
-            return;
+        await _eventChannel.Writer.WriteAsync(ev);
 
-        await _groupLock.WaitAsync();
-        try
-        {
-            if (_globalGroup == null)
-            {
-                _globalGroup = await groupRepository.AddAsync(GlobalGroup);
-                _logger.LogInformation("Global map events group initialized");
-            }
-        }
-        finally
-        {
-            _groupLock.Release();
-        }
-    }
-
-    public Task BroadcastObjectAddedAsync(ObjectAddedEvent ev)
-    {
-        if (_globalGroup == null)
-        {
-            _logger.LogWarning("Cannot broadcast: global group not initialized");
-            return Task.CompletedTask;
-        }
-
-        // .All возвращает receiver proxy для отправки всем в группе
-        _globalGroup.All.OnObjectAdded(ev);
-        
         _logger.LogDebug(
-            "Broadcasted ObjectAdded event for {ObjectId} at ({X},{Y})",
+            "Published ObjectAdded event for {ObjectId} at ({X},{Y})",
             ev.Map.Id, ev.Map.X, ev.Map.Y);
-
-        return Task.CompletedTask;
     }
 
-    public Task BroadcastObjectUpdatedAsync(ObjectUpdatedEvent ev)
+    public async Task BroadcastObjectUpdatedAsync(ObjectUpdatedEvent ev)
     {
-        if (_globalGroup == null)
-        {
-            _logger.LogWarning("Cannot broadcast: global group not initialized");
-            return Task.CompletedTask;
-        }
+        await _eventChannel.Writer.WriteAsync(ev);
 
-        _globalGroup.All.OnObjectUpdated(ev);
-        
         _logger.LogDebug(
-            "Broadcasted ObjectUpdated event for {ObjectId}",
+            "Published ObjectUpdated event for {ObjectId}",
             ev.Map.Id);
-
-        return Task.CompletedTask;
     }
 
-    public Task BroadcastObjectDeletedAsync(ObjectDeletedEvent ev)
+    public async Task BroadcastObjectDeletedAsync(ObjectDeletedEvent ev)
     {
-        if (_globalGroup == null)
-        {
-            _logger.LogWarning("Cannot broadcast: global group not initialized");
-            return Task.CompletedTask;
-        }
+        await _eventChannel.Writer.WriteAsync(ev);
 
-        _globalGroup.All.OnObjectDeleted(ev);
-        
         _logger.LogDebug(
-            "Broadcasted ObjectDeleted event for {ObjectId}",
+            "Published ObjectDeleted event for {ObjectId}",
             ev.ObjectId);
-
-        return Task.CompletedTask;
-    }
-
-    public void Dispose()
-    {
-        _groupLock?.Dispose();
     }
 }
