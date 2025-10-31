@@ -425,3 +425,6 @@ FodyWeavers.xsd
 
 #llm
 /llm
+
+#tests
+/shell_tests
