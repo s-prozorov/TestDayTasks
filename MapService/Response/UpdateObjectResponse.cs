@@ -1,6 +1,9 @@
+using MemoryPack;
+
 namespace MapService.Response;
 
-public class UpdateObjectResponse
+[MemoryPackable]
+public partial class UpdateObjectResponse
 {
     public bool? IsSuccess { get; set; }
 }
