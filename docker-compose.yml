@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: map-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - map-network
+
+  mapserver:
+    build:
+      context: .
+      dockerfile: MapServer/Dockerfile
+    container_name: map-server
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_CONNECTION=redis:6379
+      - SERVER_URL=http://0.0.0.0:5000
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - map-network
+    restart: unless-stopped
+
+  mapclient:
+    build:
+      context: .
+      dockerfile: MapClient/Dockerfile
+    container_name: map-client
+    environment:
+      - SERVER_ADDRESS=http://mapserver:5000
+    depends_on:
+      - mapserver
+    networks:
+      - map-network
+    stdin_open: true
+    tty: true
+    profiles:
+      - with-client
+
+networks:
+  map-network:
+    driver: bridge
