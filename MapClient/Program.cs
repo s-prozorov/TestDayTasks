@@ -41,6 +41,13 @@ while (true)
 {
     Console.Write("> ");
     var input = Console.ReadLine();
+
+    if (input == null)
+    {
+        Console.WriteLine("Input stream closed. Exiting...");
+        break;
+    }
+
     if (string.IsNullOrWhiteSpace(input)) continue;
 
     var parts = input.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -123,6 +130,10 @@ while (true)
         Console.WriteLine($"[ERROR] {ex.Message}");
     }
 }
+
+Console.WriteLine("Disconnecting...");
+await hub.DisposeAsync();
+await channel.ShutdownAsync();
 
 static async Task HandleCreate(IMapService client, int type, int x, int y)
 {
