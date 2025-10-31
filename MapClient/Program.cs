@@ -37,6 +37,34 @@ Console.WriteLine("  help                     - Show this help");
 Console.WriteLine("  exit                     - Exit client");
 Console.WriteLine();
 
+// Проверяем режим "только слушатель" для тестов
+var listenOnlyMode = Environment.GetEnvironmentVariable("LISTEN_ONLY");
+if (!string.IsNullOrEmpty(listenOnlyMode) && listenOnlyMode.ToLower() == "true")
+{
+    Console.WriteLine("[TEST MODE] Running in listen-only mode. Waiting for broadcast events...");
+    Console.WriteLine("Press Ctrl+C to exit");
+
+    // Просто ждем бесконечно, получая события
+    await Task.Delay(Timeout.Infinite);
+    return;
+}
+
+// Проверяем режим "одна команда" для тестов
+var oneCommand = Environment.GetEnvironmentVariable("COMMAND");
+if (!string.IsNullOrEmpty(oneCommand))
+{
+    Console.WriteLine($"[TEST MODE] Executing command: {oneCommand}");
+    var parts = oneCommand.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    if (parts.Length > 0)
+    {
+        await ExecuteCommand(client, hub, parts);
+    }
+    Console.WriteLine("[TEST MODE] Command executed, exiting...");
+    await hub.DisposeAsync();
+    await channel.ShutdownAsync();
+    return;
+}
+
 while (true)
 {
     Console.Write("> ");
@@ -53,77 +81,9 @@ while (true)
     var parts = input.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
     if (parts.Length == 0) continue;
 
-    var command = parts[0].ToLower();
-
     try
     {
-        switch (command)
-        {
-            case "create":
-                if (parts.Length != 4)
-                {
-                    Console.WriteLine("Usage: create <type> <x> <y>");
-                    break;
-                }
-                await HandleCreate(client, int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]));
-                break;
-
-            case "delete":
-                if (parts.Length != 2)
-                {
-                    Console.WriteLine("Usage: delete <id>");
-                    break;
-                }
-                await HandleDelete(client, parts[1]);
-                break;
-
-            case "move":
-                if (parts.Length != 4)
-                {
-                    Console.WriteLine("Usage: move <id> <x> <y>");
-                    break;
-                }
-                await HandleMove(client, parts[1], int.Parse(parts[2]), int.Parse(parts[3]));
-                break;
-
-            case "state":
-                if (parts.Length != 5)
-                {
-                    Console.WriteLine("Usage: state <x1> <y1> <x2> <y2>");
-                    break;
-                }
-                await HandleState(client, int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]));
-                break;
-
-            case "regions":
-                if (parts.Length != 5)
-                {
-                    Console.WriteLine("Usage: regions <x1> <y1> <x2> <y2>");
-                    break;
-                }
-                await HandleRegions(client, int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]));
-                break;
-
-            case "help":
-                Console.WriteLine("Available commands:");
-                Console.WriteLine("  create <type> <x> <y>    - Create object");
-                Console.WriteLine("  delete <id>              - Delete object");
-                Console.WriteLine("  move <id> <x> <y>        - Move object");
-                Console.WriteLine("  state <x1> <y1> <x2> <y2> - Get objects in area");
-                Console.WriteLine("  regions <x1> <y1> <x2> <y2> - Get regions in area");
-                Console.WriteLine("  exit                     - Exit client");
-                break;
-
-            case "exit":
-                Console.WriteLine("Disconnecting...");
-                await hub.DisposeAsync();
-                await channel.ShutdownAsync();
-                return;
-
-            default:
-                Console.WriteLine($"Unknown command: {command}. Type 'help' for available commands.");
-                break;
-        }
+        await ExecuteCommand(client, hub, parts);
     }
     catch (Exception ex)
     {
@@ -190,6 +150,81 @@ static async Task HandleRegions(IMapService client, int x1, int y1, int x2, int 
     foreach (var region in response.Regions)
     {
         Console.WriteLine($"  - ID: {region.Id}, Name: {region.Name}, Owner: {region.OwnerId}");
+    }
+}
+
+static async Task ExecuteCommand(IMapService client, IMapHub hub, string[] parts)
+{
+    if (parts.Length == 0) return;
+
+    var command = parts[0].ToLower();
+
+    switch (command)
+    {
+        case "create":
+            if (parts.Length != 4)
+            {
+                Console.WriteLine("Usage: create <type> <x> <y>");
+                break;
+            }
+            await HandleCreate(client, int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]));
+            break;
+
+        case "delete":
+            if (parts.Length != 2)
+            {
+                Console.WriteLine("Usage: delete <id>");
+                break;
+            }
+            await HandleDelete(client, parts[1]);
+            break;
+
+        case "move":
+            if (parts.Length != 4)
+            {
+                Console.WriteLine("Usage: move <id> <x> <y>");
+                break;
+            }
+            await HandleMove(client, parts[1], int.Parse(parts[2]), int.Parse(parts[3]));
+            break;
+
+        case "state":
+            if (parts.Length != 5)
+            {
+                Console.WriteLine("Usage: state <x1> <y1> <x2> <y2>");
+                break;
+            }
+            await HandleState(client, int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]));
+            break;
+
+        case "regions":
+            if (parts.Length != 5)
+            {
+                Console.WriteLine("Usage: regions <x1> <y1> <x2> <y2>");
+                break;
+            }
+            await HandleRegions(client, int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]));
+            break;
+
+        case "help":
+            Console.WriteLine("Available commands:");
+            Console.WriteLine("  create <type> <x> <y>    - Create object");
+            Console.WriteLine("  delete <id>              - Delete object");
+            Console.WriteLine("  move <id> <x> <y>        - Move object");
+            Console.WriteLine("  state <x1> <y1> <x2> <y2> - Get objects in area");
+            Console.WriteLine("  regions <x1> <y1> <x2> <y2> - Get regions in area");
+            Console.WriteLine("  exit                     - Exit client");
+            break;
+
+        case "exit":
+            Console.WriteLine("Disconnecting...");
+            await hub.DisposeAsync();
+            Environment.Exit(0);
+            break;
+
+        default:
+            Console.WriteLine($"Unknown command: {command}. Type 'help' for available commands.");
+            break;
     }
 }
 
